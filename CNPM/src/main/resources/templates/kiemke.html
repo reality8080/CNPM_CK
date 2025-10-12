@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kiểm Kê</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<link href="/assets/css/style.css" rel="stylesheet">
+<script src="/assets/js/api.js"></script>
+<script src="/assets/js/utils.js"></script>
+<script src="/assets/js/main.js"></script>
+</head>
+<body>
+	<div id="navbar"></div>
+	<div class="container-fluid">
+		<div class="row">
+			<div id="sidebar"></div>
+			<main class="col-md-10 ms-sm-auto px-4">
+				<ul class="nav nav-tabs mt-3">
+					<li class="nav-item"><a class="nav-link active"
+						data-tab="list" href="#">Danh Sách</a></li>
+					<li class="nav-item"><a class="nav-link" data-tab="create"
+						href="#">Tạo Phiếu</a></li>
+				</ul>
+
+				<div id="listTab" class="mt-3">
+					<table class="table table-striped" id="table">
+						<thead>
+							<tr>
+								<th>Mã Phiếu</th>
+								<th>Ngày Kiểm</th>
+								<th>Nhân Viên</th>
+								<th>Trạng Thái</th>
+								<th>Thao Tác</th>
+							</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+				</div>
+
+				<div id="createTab" class="mt-3" style="display: none">
+					<form id="form">
+						<div class="card mb-3">
+							<div class="card-body">
+								<div class="row">
+									<div class="col-md-6 mb-3">
+										<label class="form-label">Ngày Kiểm Kê</label> <input
+											type="date" class="form-control" id="ngayKiemKe" required>
+									</div>
+									<div class="col-md-6 mb-3">
+										<label class="form-label">Ghi Chú</label> <input type="text"
+											class="form-control" id="ghiChu">
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="card mb-3">
+							<div class="card-header">
+								<button type="button" class="btn btn-sm btn-primary"
+									id="loadAll">Tải Tất Cả Sản Phẩm</button>
+							</div>
+							<div class="card-body">
+								<table class="table" id="detailTable">
+									<thead>
+										<tr>
+											<th>Sản Phẩm</th>
+											<th>SL Hệ Thống</th>
+											<th>SL Thực Tế</th>
+											<th>Chênh Lệch</th>
+										</tr>
+									</thead>
+									<tbody></tbody>
+								</table>
+							</div>
+						</div>
+
+						<button type="submit" class="btn btn-primary">Lưu Phiếu</button>
+					</form>
+				</div>
+			</main>
+		</div>
+	</div>
+
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script>
+        $(document).ready(async function() {
+            $('#ngayKiemKe').val(new Date().toISOString().split('T')[0]);
+            loadData();
+
+            $('.nav-link').on('click', function(e) {
+                e.preventDefault();
+                $('.nav-link').removeClass('active');
+                $(this).addClass('active');
+                
+                const tab = $(this).data('tab');
+                $('#listTab, #createTab').hide();
+                $(`#${tab}Tab`).show();
+            });
+
+            $('#loadAll').on('click', loadAllSanPham);
+            $('#form').on('submit', save);
+        });
+
+        async function loadData() {
+            const res = await API.get('/kiemke');
+            const data = res.data || [];
+            
+            Table.render('table', data, [
+                {field: 'maKiemKe'},
+                {render: r => Format.date(r.ngayKiemKe)},
+                {field: 'maNV'},
+                {render: r => Format.status(r.trangThai)},
+                {render: r => `
+                    <button class="btn btn-sm btn-info" onclick="viewDetail('${r.maKiemKe}')">Chi tiết</button>
+                    ${r.trangThai === 'DangXuLy' ? `<button class="btn btn-sm btn-success" onclick="complete('${r.maKiemKe}')">Xác nhận</button>` : ''}
+                `}
+            ]);
+        }
+
+        async function loadAllSanPham() {
+            const res = await API.get('/sanpham');
+            const sp = res.data || [];
+            
+            if (sp.length === 0) {
+                Toast.warning('Chưa có sản phẩm nào');
+                return;
+            }
+            
+            const tbody = $('#detailTable tbody');
+            tbody.empty();
+
+            sp.forEach(s => {
+                const row = $(`
+                    <tr>
+                        <td>${s.tenSP}</td>
+                        <td class="ht-cell">${s.soLuongTon}</td>
+                        <td><input type="number" class="form-control tt-input" min="0" value="${s.soLuongTon}" data-ma="${s.maSP}"></td>
+                        <td class="cl-cell">0</td>
+                    </tr>
+                `);
+                
+                row.find('.tt-input').on('input', function() {
+                    const ht = parseInt(row.find('.ht-cell').text());
+                    const tt = parseInt($(this).val()) || 0;
+                    const cl = tt - ht;
+                    const cell = row.find('.cl-cell');
+                    cell.text(cl);
+                    
+                    if (cl > 0) cell.removeClass('text-danger').addClass('text-success');
+                    else if (cl < 0) cell.removeClass('text-success').addClass('text-danger');
+                    else cell.removeClass('text-success text-danger');
+                });
+                
+                tbody.append(row);
+            });
+
+            Toast.success('Đã tải tất cả sản phẩm');
+        }
+        
+        async function save(e) {
+            e.preventDefault();
+            
+            const chiTietList = [];
+            $('#detailTable tbody tr').each(function() {
+                const maSP = $(this).find('.tt-input').data('ma');
+                const soLuongThucTe = parseInt($(this).find('.tt-input').val()) || 0;
+                const ghiChu = '';
+                
+                if (maSP) {
+                    chiTietList.push({
+                        maSP: maSP,
+                        soLuongThucTe: soLuongThucTe,
+                        ghiChu: ghiChu
+                    });
+                }
+            });
+            
+            if (chiTietList.length === 0) {
+                Toast.error('Vui lòng thêm chi tiết kiểm kê');
+                return;
+            }
+
+            const data = {
+                ngayKiemKe: $('#ngayKiemKe').val(),
+                maNV: 'NV001',
+                trangThai: 'DangXuLy',
+                ghiChu: $('#ghiChu').val(),
+                chiTiet: chiTietList
+            };
+
+            const res = await API.post('/kiemke', data);
+            Toast.success(res.message);
+            
+            $('#form')[0].reset();
+            $('#detailTable tbody').empty();
+            $('#ngayKiemKe').val(new Date().toISOString().split('T')[0]);
+            
+            $('.nav-link').removeClass('active');
+            $('.nav-link[data-tab="list"]').addClass('active');
+            $('#createTab').hide();
+            $('#listTab').show();
+            
+            await loadData();
+        }
+        async function complete(id) {
+            Modal.confirm('Xác nhận', 'Xác nhận kiểm kê?', async () => {
+                const res = await API.put(`/kiemke/${id}/xacnhan`);
+                Toast.success(res.message);
+                await loadData();
+            });
+        }
+
+        async function viewDetail(id) {
+            const res = await API.get(`/kiemke/${id}`);
+            const detail = res.data;
+            
+            let html = `
+                <div class="modal fade" id="detailModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5>Chi tiết kiểm kê ${detail.maKiemKe}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p><strong>Ngày kiểm kê:</strong> ${Format.date(detail.ngayKiemKe)}</p>
+                                <p><strong>Nhân viên:</strong> ${detail.maNV}</p>
+                                <p><strong>Trạng thái:</strong> ${Format.status(detail.trangThai)}</p>
+                                <p><strong>Ghi chú:</strong> ${detail.ghiChu || '-'}</p>
+                                <table class="table">
+                                    <thead><tr><th>Sản phẩm</th><th>SL Hệ thống</th><th>SL Thực tế</th><th>Chênh lệch</th></tr></thead>
+                                    <tbody>
+                                        ${detail.chiTietKiemKe.map(ct => {
+                                            const cl = ct.chenhLech || 0;
+                                            const clClass = cl > 0 ? 'text-success' : (cl < 0 ? 'text-danger' : '');
+                                            return `
+                                                <tr>
+                                                    <td>${ct.sanPham.tenSP}</td>
+                                                    <td>${ct.soLuongHeThong}</td>
+                                                    <td>${ct.soLuongThucTe}</td>
+                                                    <td class="${clClass}">${cl}</td>
+                                                </tr>
+                                            `;
+                                        }).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            $('#detailModal').remove();
+            $('body').append(html);
+            const modal = new bootstrap.Modal($('#detailModal')[0]);
+            modal.show();
+        }
+    </script>
+</body>
+</html>

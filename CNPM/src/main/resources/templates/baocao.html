@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Báo Cáo</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<link href="/assets/css/style.css" rel="stylesheet">
+<script src="/assets/js/api.js"></script>
+<script src="/assets/js/utils.js"></script>
+<script src="/assets/js/main.js"></script>
+</head>
+<body>
+	<div id="navbar"></div>
+	<div class="container-fluid">
+		<div class="row">
+			<div id="sidebar"></div>
+			<main class="col-md-10 ms-sm-auto px-4">
+				<h2 class="mt-3">Báo Cáo Nhập Xuất Tồn</h2>
+
+				<div class="card mb-3 mt-3">
+					<div class="card-body">
+						<div class="row">
+							<div class="col-md-4 mb-3">
+								<label class="form-label">Từ Ngày</label> <input type="date"
+									class="form-control" id="tuNgay">
+							</div>
+							<div class="col-md-4 mb-3">
+								<label class="form-label">Đến Ngày</label> <input type="date"
+									class="form-control" id="denNgay">
+							</div>
+							<div class="col-md-4 mb-3">
+								<label class="form-label">&nbsp;</label>
+								<button class="btn btn-primary w-100" id="loadBtn">Xem
+									Báo Cáo</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<table class="table table-bordered" id="table">
+					<thead class="table-light">
+						<tr>
+							<th>Mã</th>
+							<th>Tên Sản Phẩm</th>
+							<th>Tồn Đầu</th>
+							<th>Nhập</th>
+							<th>Xuất</th>
+							<th>Tồn Cuối</th>
+							<th>Giá Trị Tồn</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+					<tfoot class="table-light">
+						<tr>
+							<td colspan="6" class="text-end"><strong>Tổng:</strong></td>
+							<td><strong id="tongGT">0 ₫</strong></td>
+						</tr>
+					</tfoot>
+				</table>
+			</main>
+		</div>
+	</div>
+
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script>
+        $(document).ready(async function() {
+            const today = new Date();
+            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            
+            $('#tuNgay').val(firstDay.toISOString().split('T')[0]);
+            $('#denNgay').val(today.toISOString().split('T')[0]);
+
+            $('#loadBtn').on('click', loadBaoCao);
+        });
+
+        async function loadBaoCao() {
+        	const tu = $('#tuNgay').val();
+            const den = $('#denNgay').val();
+            
+            const res = await API.get(`/baocao/khoang-thoi-gian?start=${tu}&end=${den}`);
+            
+            const data = sanPham.map(sp => {
+                const nhap = phieuNhap
+                    .filter(p => p.ngayNhap >= tu && p.ngayNhap <= den && p.trangThai === 'DaNhap')
+                    .reduce((sum, p) => {
+                        const ct = p.chiTiet.find(c => c.sanPham.maSP === sp.maSP);
+                        return sum + (ct?.soLuong || 0);
+                    }, 0);
+                    
+                const xuat = phieuXuat
+                    .filter(p => p.ngayXuat >= tu && p.ngayXuat <= den && p.trangThai === 'DaXuat')
+                    .reduce((sum, p) => {
+                        const ct = p.chiTiet.find(c => c.sanPham.maSP === sp.maSP);
+                        return sum + (ct?.soLuong || 0);
+                    }, 0);
+                    
+                return {
+                    maSP: sp.maSP,
+                    tenSP: sp.tenSP,
+                    tonDauKy: sp.soLuongTon - nhap + xuat,
+                    nhapTrongKy: nhap,
+                    xuatTrongKy: xuat,
+                    tonCuoiKy: sp.soLuongTon,
+                    giaBan: sp.giaBan
+                };
+            });
+            
+            const tbody = $('#table tbody');
+            tbody.empty();
+            
+            let tongGT = 0;
+            data.forEach(item => {
+                const gtTon = item.tonCuoiKy * (item.giaBan || 0);
+                tongGT += gtTon;
+                
+                tbody.append(`
+                    <tr>
+                        <td>${item.maSP}</td>
+                        <td>${item.tenSP}</td>
+                        <td>${item.tonDauKy || 0}</td>
+                        <td>${item.nhapTrongKy || 0}</td>
+                        <td>${item.xuatTrongKy || 0}</td>
+                        <td>${item.tonCuoiKy || 0}</td>
+                        <td>${Format.currency(gtTon)}</td>
+                    </tr>
+                `);
+            });
+            
+            if (data.length === 0) {
+                tbody.html('<tr><td colspan="7" class="text-center">Không có dữ liệu</td></tr>');
+            }
+            
+            $('#tongGT').text(Format.currency(tongGT));
+        }
+    </script>
+</body>
+</html>
