@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Chương Trình Khuyến Mãi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/custom.css">
+    <link rel="stylesheet" href="/css/product-common.css">
+</head>
+<body>
+<div id="navbar-placeholder"></div>
+<div class="container-fluid">
+    <h2 class="mb-4">Quản Lý Chương Trình Khuyến Mãi</h2>
+
+    <form id="promotionSearchForm" class="search-form row g-3 align-items-center mb-3">
+        <div class="col-md-4">
+            <input type="text" class="form-control" id="searchType" placeholder="Tìm kiếm theo Loại Khuyến Mãi">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Tìm Kiếm</button>
+        </div>
+        <div class="col-auto">
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#promotionModal" id="addNewPromotionBtn">
+                Thêm Chương Trình Mới
+            </button>
+        </div>
+    </form>
+
+    <div id="promotionAlert" class="alert d-none" role="alert"></div>
+
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h5 class="text-primary">Danh Sách Chương Trình Khuyến Mãi</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                    <tr>
+                        <th scope="col">ID Chương Trình</th>
+                        <th scope="col">Tên Chương Trình</th>
+                        <th scope="col">Loại</th>
+                        <th scope="col">Giá Trị Giảm</th>
+                        <th scope="col">Ngày Bắt Đầu</th>
+                        <th scope="col">Ngày Kết Thúc</th>
+                        <th scope="col">Điều Kiện Áp Dụng</th>
+                        <th scope="col">Trạng Thái</th>
+                        <th scope="col">Số Sản Phẩm Liên Kết</th>
+                        <th scope="col">Thao Tác</th>
+                    </tr>
+                    </thead>
+                    <tbody id="promotionTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="promotionModal" tabindex="-1" aria-labelledby="promotionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="promotionModalLabel">Thêm Chương Trình Mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="promotionForm">
+                <div class="modal-body">
+                    <input type="hidden" id="promotionId">
+                    <div class="mb-3">
+                        <label for="promotionName" class="form-label">Tên Chương Trình <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="promotionName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="promotionType" class="form-label">Loại Khuyến Mãi <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="promotionType" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="discountValue" class="form-label">Giá Trị Giảm <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="discountValue" min="0" step="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="startDate" class="form-label">Ngày Bắt Đầu <span class="text-danger">*</span></label>
+                        <input type="datetime-local" class="form-control" id="startDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="endDate" class="form-label">Ngày Kết Thúc <span class="text-danger">*</span></label>
+                        <input type="datetime-local" class="form-control" id="endDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="applyCondition" class="form-label">Điều Kiện Áp Dụng</label>
+                        <input type="text" class="form-control" id="applyCondition" placeholder="e.g., Minimum order 500k">
+                    </div>
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Trạng Thái <span class="text-danger">*</span></label>
+                        <select class="form-select" id="status" required>
+                            <option value="">Chọn trạng thái</option>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div id="modalAlert" class="alert d-none" role="alert"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary" id="savePromotionBtn">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/custom.js"></script>
+<script src="/js/admin/admin.js"></script>
+<script src="/js/product/promotion-programs.js"></script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Sản Phẩm - Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/custom.css">
+    <link rel="stylesheet" href="/css/product-common.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<div id="navbar-placeholder"></div>
+
+<div class="container-fluid mt-4">
+    <h2 class="mb-4">Quản Lý Sản Phẩm</h2>
+
+    <form id="productSearchForm" class="search-form row g-3 align-items-center mb-3">
+        <div class="col-md-3">
+            <input type="text" class="form-control" id="searchCategoryId" placeholder="Tìm theo ID Danh Mục">
+        </div>
+        <div class="col-md-3">
+            <input type="text" class="form-control" id="searchSupplierId" placeholder="Tìm theo ID Nhà Cung Cấp">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Tìm Kiếm</button>
+        </div>
+        <div class="col-auto">
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#productModal" id="addNewProductBtn">
+                Thêm Sản Phẩm Mới
+            </button>
+        </div>
+    </form>
+
+    <div id="productAlert" class="alert d-none" role="alert"></div>
+
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h5 class="text-primary">Danh Sách Sản Phẩm</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                    <tr>
+                        <th>ID Sản Phẩm</th>
+                        <th>Tên Sản Phẩm</th>
+                        <th>Giá</th>
+                        <th>Mô Tả</th>
+                        <th>ID Danh Mục</th>
+                        <th>ID Nhà Cung Cấp</th>
+                        <th>Trạng Thái</th>
+                        <th>Điểm Đánh Giá</th>
+                        <th>Số Lượng Bán</th>
+                        <th>Thao Tác</th>
+                    </tr>
+                    </thead>
+                    <tbody id="productTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productModalLabel">Thêm Sản Phẩm Mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="productForm">
+                <div class="modal-body">
+                    <input type="hidden" id="productId">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="productName" class="form-label">Tên Sản Phẩm <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="productName" required>
+                            <div class="invalid-feedback">Tên sản phẩm là bắt buộc.</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="productPrice" class="form-label">Giá <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="productPrice" min="0" required>
+                            <div class="invalid-feedback">Giá là bắt buộc và phải lớn hơn 0.</div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Mô Tả</label>
+                        <textarea class="form-control" id="description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="imageUrl" class="form-label">URL Hình Ảnh <span class="text-danger">*</span></label>
+                        <input type="url" class="form-control" id="imageUrl" required>
+                        <div class="invalid-feedback">URL hình ảnh là bắt buộc.</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="categoryId" class="form-label">ID Danh Mục <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="categoryId" required>
+                            <div class="invalid-feedback">ID danh mục là bắt buộc.</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="supplierId" class="form-label">ID Nhà Cung Cấp <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="supplierId" required>
+                            <div class="invalid-feedback">ID nhà cung cấp là bắt buộc.</div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Trạng Thái <span class="text-danger">*</span></label>
+                        <select class="form-select" id="status" required>
+                            <option value="">Chọn trạng thái</option>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                        <div class="invalid-feedback">Trạng thái là bắt buộc.</div>
+                    </div>
+                    <div id="modalAlert" class="alert alert-dismissible fade show d-none" role="alert"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="bi bi-x-circle"></i> Đóng</button>
+                    <button type="submit" class="btn btn-primary" id="saveProductBtn"><i class="bi bi-check-lg"></i> Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/custom.js"></script>
+<script src="/js/admin/admin.js"></script>
+<script src="/js/product/products.js"></script>
+</body>
+</html>

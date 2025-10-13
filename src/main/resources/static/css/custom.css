@@ -1,0 +1,55 @@
+/* Custom CSS for professional look */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card {
+    transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.alert {
+    transition: opacity 0.3s ease;
+}
+
+.spinner-border {
+    margin-right: 0.5rem;
+}
+
+.navbar {
+    transition: all 0.3s ease;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.dashboard-card {
+    background-color: #fff;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.dashboard-card h1 {
+    color: #007bff;
+}
+
+.profile-img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover; /* Đảm bảo ảnh vừa vặn và không bị méo */
+    border-radius: 50%; /* Làm cho ảnh tròn */
+}

@@ -1,0 +1,39 @@
+/* /views/product/product-common.css */
+
+/* Tận dụng các style chung từ custom.css */
+
+.container-fluid {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.card-header h5 {
+    margin-bottom: 0;
+    font-weight: 600;
+}
+
+/* Căn chỉnh cho bảng dữ liệu */
+.table th, .table td {
+    vertical-align: middle;
+}
+
+/* Style cho các nút hành động trong bảng */
+.action-buttons button {
+    margin-right: 5px;
+}
+
+/* Style cho form tìm kiếm */
+.search-form {
+    margin-bottom: 20px;
+}
+
+/* Thêm khoảng cách cho modal body */
+.modal-body {
+    padding: 20px;
+}
+
+/* Dùng cho các thẻ input bị disable (chỉ đọc) */
+.form-control:disabled {
+    background-color: #e9ecef;
+    opacity: 1;
+}
