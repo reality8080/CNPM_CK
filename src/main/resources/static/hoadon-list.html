@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách hóa đơn</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        .card { margin-bottom: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        .table th, .table td { vertical-align: middle; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-4">
+    <h2>Danh sách hóa đơn</h2>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Danh sách hóa đơn</li>
+        </ol>
+    </nav>
+    <div class="card p-3">
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label for="startDate" class="form-label">Từ ngày</label>
+                <input type="date" class="form-control" id="startDate">
+            </div>
+            <div class="col-md-3">
+                <label for="endDate" class="form-label">Đến ngày</label>
+                <input type="date" class="form-control" id="endDate">
+            </div>
+            <div class="col-md-3">
+                <label for="trangThai" class="form-label">Trạng thái</label>
+                <select class="form-select" id="trangThai">
+                    <option value="">Tất cả</option>
+                    <option value="DaThanhToan">Đã thanh toán</option>
+                    <option value="DangXuLy">Đang xử lý</option>
+                    <option value="DaHuy">Đã hủy</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-primary mt-4" onclick="loadHoaDons()">Tìm kiếm</button>
+            </div>
+        </div>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Mã hóa đơn</th>
+                <th>Khách hàng</th>
+                <th>Ngày bán</th>
+                <th>Tổng tiền</th>
+                <th>Trạng thái</th>
+                <th>Phương thức thanh toán</th>
+                <th>Thao tác</th>
+            </tr>
+            </thead>
+            <tbody id="hoaDonTable"></tbody>
+        </table>
+        <nav aria-label="Page navigation">
+            <ul class="pagination" id="pagination"></ul>
+        </nav>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let currentPage = 0;
+    const pageSize = 10;
+
+    function loadHoaDons() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        const trangThai = document.getElementById('trangThai').value;
+        const url = `/api/hoadon?page=${currentPage}&size=${pageSize}${startDate ? '&startDate=' + startDate : ''}${endDate ? '&endDate=' + endDate : ''}${trangThai ? '&trangThai=' + trangThai : ''}`;
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                const table = document.getElementById('hoaDonTable');
+                table.innerHTML = '';
+                data.content.forEach(hoaDon => {
+                    const row = `
+                        <tr>
+                            <td>${hoaDon.maHD}</td>
+                            <td>${hoaDon.hoTenKhachHang}</td>
+                            <td>${new Date(hoaDon.ngayBan).toLocaleDateString('vi-VN')}</td>
+                            <td>${hoaDon.tongTien.toLocaleString('vi-VN')}đ</td>
+                            <td>${hoaDon.trangThai}</td>
+                            <td>${hoaDon.phuongThucThanhToan}</td>
+                            <td>
+                                <button class="btn btn-info btn-sm" onclick="printHoaDon('${hoaDon.maHD}')">In</button>
+                            </td>
+                        </tr>
+                    `;
+                    table.innerHTML += row;
+                });
+                updatePagination(data.totalPages);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Lỗi khi tải danh sách hóa đơn: ' + error.message);
+            });
+    }
+
+    function updatePagination(totalPages) {
+        const pagination = document.getElementById('pagination');
+        pagination.innerHTML = '';
+        for (let i = 0; i < totalPages; i++) {
+            const li = document.createElement('li');
+            li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+            li.innerHTML = `<a class="page-link" href="#" onclick="currentPage=${i};loadHoaDons()">${i + 1}</a>`;
+            pagination.appendChild(li);
+        }
+    }
+
+    function arrayBufferToBase64(buffer) {
+        let binary = '';
+        const bytes = new Uint8Array(buffer);
+        for (let i = 0; i < bytes.byteLength; i++) {
+            binary += String.fromCharCode(bytes[i]);
+        }
+        return window.btoa(binary);
+    }
+
+    function printHoaDon(maHD) {
+        fetch(`/api/hoadon/${maHD}`)
+            .then(response => {
+                if (!response.ok) throw new Error('Hóa đơn không tồn tại');
+                return response.json();
+            })
+            .then(hoaDon => {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // Nạp font Noto Sans
+                fetch('/fonts/NotoSans-Regular.ttf')
+                    .then(response => {
+                        if (!response.ok) throw new Error('Không thể tải font: ' + response.status);
+                        return response.arrayBuffer();
+                    })
+                    .then(fontArrayBuffer => {
+                        const base64Font = arrayBufferToBase64(fontArrayBuffer);
+                        doc.addFileToVFS('NotoSans-Regular.ttf', base64Font);
+                        doc.addFont('NotoSans-Regular.ttf', 'NotoSans', 'normal');
+                        doc.setFont('NotoSans');
+
+                        // Thiết kế hóa đơn chuyên nghiệp với căn giữa chính xác
+                        const pageWidth = 210; // Độ rộng trang A4 (mm)
+                        const margin = 10; // Lề trái/phải
+
+                        // Thông tin cửa hàng
+                        doc.setFontSize(18);
+                        doc.setTextColor(0, 102, 204); // Màu xanh đậm
+                        const storeName = 'CỬA HÀNG QUẦN ÁO MINH NHỰT';
+                        const storeNameWidth = doc.getTextWidth(storeName);
+                        doc.text(storeName, (pageWidth - storeNameWidth) / 2, 20);
+
+                        doc.setFontSize(10);
+                        doc.setTextColor(100, 100, 100); // Màu xám
+                        const address = 'Địa chỉ: 123 Đường ABC, TP.HCM';
+                        const phoneEmail = 'SĐT: 0909 123 456 | Email: minhnhut@shop.com';
+                        const addressWidth = doc.getTextWidth(address);
+                        const phoneEmailWidth = doc.getTextWidth(phoneEmail);
+                        doc.text(address, (pageWidth - addressWidth) / 2, 28);
+                        doc.text(phoneEmail, (pageWidth - phoneEmailWidth) / 2, 34);
+
+                        doc.setDrawColor(200, 200, 200); // Màu xám nhạt
+                        doc.line(margin, 40, pageWidth - margin, 40); // Đường kẻ phân cách header
+
+                        // Thông tin hóa đơn
+                        doc.setFontSize(14);
+                        doc.setTextColor(0, 0, 0); // Màu đen
+                        const title = 'HÓA ĐƠN BÁN HÀNG';
+                        const titleWidth = doc.getTextWidth(title);
+                        doc.text(title, (pageWidth - titleWidth) / 2, 50);
+
+                        doc.setFontSize(10);
+                        const invoiceInfo = [
+                            `Mã hóa đơn: ${hoaDon.maHD}`,
+                            `Khách hàng: ${hoaDon.hoTenKhachHang}`,
+                            `Ngày bán: ${new Date(hoaDon.ngayBan).toLocaleDateString('vi-VN')}`,
+                            `Phương thức thanh toán: ${hoaDon.phuongThucThanhToan}`
+                        ];
+                        invoiceInfo.forEach((info, index) => {
+                            const infoWidth = doc.getTextWidth(info);
+                            doc.text(info, (pageWidth - infoWidth) / 2, 60 + (index * 8));
+                        });
+
+                        doc.line(margin, 80, pageWidth - margin, 80); // Đường kẻ phân cách thông tin
+
+                        // Chi tiết sản phẩm
+                        let y = 90;
+                        doc.setFontSize(10);
+                        hoaDon.chiTiet.forEach(item => {
+                            const productText = `${item.tenSP}`;
+                            const qtyPriceText = `${item.soLuong} x ${item.donGia.toLocaleString('vi-VN')}đ`;
+                            const discountText = `(Khuyến mãi: ${item.chietKhau}%)`;
+                            const productWidth = doc.getTextWidth(productText);
+                            const qtyPriceWidth = doc.getTextWidth(qtyPriceText);
+                            const discountWidth = doc.getTextWidth(discountText);
+                            doc.text(productText, margin + 10, y);
+                            doc.text(qtyPriceText, pageWidth - margin - qtyPriceWidth - discountWidth - 10, y);
+                            doc.text(discountText, pageWidth - margin - discountWidth, y);
+                            y += 10;
+                        });
+
+                        doc.line(margin, y + 5, pageWidth - margin, y + 5); // Đường kẻ trước tổng cộng
+                        const totalText = `Tổng cộng: ${hoaDon.tongTien.toLocaleString('vi-VN')}đ`;
+                        const totalWidth = doc.getTextWidth(totalText);
+                        doc.text(totalText, pageWidth - margin - totalWidth, y + 15);
+
+                        doc.save(`hoa-don-${hoaDon.maHD}.pdf`);
+                    })
+                    .catch(error => {
+                        console.error('Error loading font:', error);
+                        alert('Lỗi khi tải font cho PDF: ' + error.message);
+                        const fallbackDoc = new jsPDF();
+                        fallbackDoc.setFontSize(16);
+                        fallbackDoc.text('HÓA ĐƠN BÁN HÀNG', 20, 20);
+                        fallbackDoc.setFontSize(12);
+                        fallbackDoc.text(`Mã hóa đơn: ${hoaDon.maHD}`, 20, 30);
+                        fallbackDoc.text(`Khách hàng: ${hoaDon.hoTenKhachHang}`, 20, 40);
+                        fallbackDoc.text(`Ngày bán: ${new Date(hoaDon.ngayBan).toLocaleDateString('vi-VN')}`, 20, 50);
+                        fallbackDoc.text(`Phương thức thanh toán: ${hoaDon.phuongThucThanhToan}`, 20, 60);
+                        let yFallback = 70;
+                        hoaDon.chiTiet.forEach(item => {
+                            fallbackDoc.text(`${item.tenSP}: ${item.soLuong} x ${item.donGia.toLocaleString('vi-VN')}đ (Khuyến mãi: ${item.chietKhau}%)`, 20, yFallback);
+                            yFallback += 10;
+                        });
+                        fallbackDoc.text(`Tổng cộng: ${hoaDon.tongTien.toLocaleString('vi-VN')}đ`, 20, yFallback);
+                        fallbackDoc.save(`hoa-don-${hoaDon.maHD}-fallback.pdf`);
+                    });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Lỗi khi in hóa đơn: ' + error.message);
+            });
+    }
+
+    window.onload = loadHoaDons;
+</script>
+</body>
+</html>

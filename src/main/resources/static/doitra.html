@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xử lý đổi trả</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        .card { margin-bottom: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        .product-list { max-height: 300px; overflow-y: auto; }
+        .product-item { padding: 5px 0; display: flex; align-items: center; gap: 10px; }
+        .section-divider { border-top: 1px solid #ddd; margin: 20px 0; padding-top: 20px; }
+        .card-body { padding: 20px; }
+    </style>
+</head>
+<body>
+<div class="container mt-4">
+    <h2>Xử lý đổi trả</h2>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
+        </ol>
+    </nav>
+    <div class="card">
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="maHD" class="form-label">Mã hóa đơn <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="maHD" required placeholder="Nhập mã hóa đơn">
+            </div>
+            <div class="mb-3">
+                <label for="maSP" class="form-label">Sản phẩm <span class="text-danger">*</span></label>
+                <select class="form-select" id="maSP" required>
+                    <option value="">Chọn sản phẩm</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="soLuong" class="form-label">Số lượng đổi trả <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="soLuong" min="1" required placeholder="Nhập số lượng">
+            </div>
+            <div class="mb-3">
+                <label for="lyDo" class="form-label">Lý do đổi trả <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="lyDo" rows="3" required placeholder="Nhập lý do"></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="submitDoiTra()">Xác nhận</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let productsInHoaDon = [];
+
+    function loadProductsForHoaDon() {
+        const maHD = document.getElementById('maHD').value.trim();
+        if (maHD) {
+            fetch(`/api/hoadon/${maHD}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Hóa đơn không tồn tại');
+                    return response.json();
+                })
+                .then(hoaDon => {
+                    productsInHoaDon = hoaDon.chiTiet;
+                    const select = document.getElementById('maSP');
+                    select.innerHTML = '<option value="">Chọn sản phẩm</option>';
+                    productsInHoaDon.forEach(item => {
+                        const option = document.createElement('option');
+                        option.value = item.maSP;
+                        option.textContent = `${item.tenSP} (Số lượng: ${item.soLuong})`;
+                        select.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Lỗi khi tải sản phẩm: ' + error.message);
+                    productsInHoaDon = [];
+                    document.getElementById('maSP').innerHTML = '<option value="">Chọn sản phẩm</option>';
+                });
+        }
+    }
+
+    document.getElementById('maHD').addEventListener('input', loadProductsForHoaDon);
+
+    function submitDoiTra() {
+        const maHD = document.getElementById('maHD').value.trim();
+        const maSP = document.getElementById('maSP').value;
+        const soLuong = parseInt(document.getElementById('soLuong').value);
+        const lyDo = document.getElementById('lyDo').value.trim();
+
+        if (!maHD || !maSP || !soLuong || !lyDo) {
+            alert('Vui lòng điền đầy đủ thông tin!');
+            return;
+        }
+
+        const product = productsInHoaDon.find(item => item.maSP === maSP);
+        if (!product || soLuong > product.soLuong) {
+            alert('Số lượng đổi trả không hợp lệ!');
+            return;
+        }
+
+        const doiTra = {
+            maHD: maHD,
+            maSP: maSP,
+            soLuong: soLuong,
+            lyDo: lyDo,
+            ngayDoiTra: new Date()
+        };
+
+        fetch('/api/doitra', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(doiTra)
+        })
+            .then(response => response.json().then(data => ({ status: response.status, body: data })))
+            .then(({ status, body }) => {
+                if (status === 200) {
+                    alert('Xử lý đổi trả thành công!');
+                    window.location.href = 'hoadon-list.html';
+                } else {
+                    alert(body.message || 'Xử lý đổi trả thất bại!');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Lỗi: ' + error.message);
+            });
+    }
+</script>
+</body>
+</html>

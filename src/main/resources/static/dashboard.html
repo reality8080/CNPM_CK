@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Nhân Viên Bán Hàng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Noto Sans', sans-serif;
+        }
+        .sidebar {
+            min-height: 100vh;
+            background-color: #2c3e50;
+            color: #fff;
+            padding-top: 20px;
+            position: fixed;
+            width: 250px;
+            transition: width 0.3s;
+        }
+        .sidebar a {
+            color: #dfe6e9;
+            padding: 15px 20px;
+            display: block;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        .sidebar a:hover {
+            background-color: #34495e;
+            color: #fff;
+        }
+        .sidebar .active {
+            background-color: #3498db;
+            color: #fff;
+        }
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card-icon {
+            font-size: 2rem;
+            color: #3498db;
+        }
+        .btn-primary {
+            background-color: #3498db;
+            border-color: #3498db;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
+            border-color: #2980b9;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+            .sidebar a span {
+                display: none;
+            }
+            .content {
+                margin-left: 70px;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Sidebar -->
+<div class="sidebar">
+    <h4 class="text-center mb-4">Quản Lý Bán Hàng</h4>
+    <a href="dashboard.html" class="active"><i class="fas fa-home me-2"></i><span>Dashboard</span></a>
+    <a href="search-products.html"><i class="fas fa-search me-2"></i><span>Tra cứu sản phẩm</span></a>
+    <a href="manage-categories.html"><i class="fas fa-list me-2"></i><span>Quản lý danh mục</span></a>
+    <a href="manage-promotions.html"><i class="fas fa-tags me-2"></i><span>Quản lý khuyến mãi</span></a>
+    <a href="invoice.html"><i class="fas fa-file-invoice me-2"></i><span>Hóa đơn bán hàng</span></a>
+    <a href="hoadon-list.html"><i class="fas fa-list-alt me-2"></i><span>Danh sách hóa đơn</span></a>
+    <a href="doitra.html"><i class="fas fa-exchange-alt me-2"></i><span>Xử lý đổi trả</span></a>
+    <a href="report.html"><i class="fas fa-chart-bar me-2"></i><span>Báo cáo bán hàng</span></a>
+    <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i><span>Đăng xuất</span></a>
+</div>
+
+<!-- Content -->
+<div class="content">
+    <div class="container-fluid">
+        <h2 class="mb-4">Dashboard Nhân Viên Bán Hàng</h2>
+        <div class="row">
+            <!-- Card Tra cứu sản phẩm -->
+            <div class="col-md-4 col-lg-3 mb-4">
+                <div class="card p-3 text-center">
+                    <i class="fas fa-search card-icon mb-3"></i>
+                    <h5>Tra cứu sản phẩm</h5>
+                    <p class="text-muted">Tìm kiếm và xem chi tiết thông tin sản phẩm.</p>
+                    <a href="search-products.html" class="btn btn-primary">Truy cập</a>
+                </div>
+            </div>
+            <!-- Card Quản lý danh mục -->
+            <div class="col-md-4 col-lg-3 mb-4">
+                <div class="card p-3 text-center">
+                    <i class="fas fa-list card-icon mb-3"></i>
+                    <h5>Quản lý danh mục</h5>
+                    <p class="text-muted">Thêm, sửa, xóa danh mục sản phẩm.</p>
+                    <a href="manage-categories.html" class="btn btn-primary">Truy cập</a>
+                </div>
+            </div>
+            <!-- Card Quản lý khuyến mãi -->
+            <div class="col-md-4 col-lg-3 mb-4">
+                <div class="card p-3 text-center">
+                    <i class="fas fa-tags card-icon mb-3"></i>
+                    <h5>Quản lý khuyến mãi</h5>
+                    <p class="text-muted">Tạo, chỉnh sửa chương trình khuyến mãi.</p>
+                    <a href="manage-promotions.html" class="btn btn-primary">Truy cập</a>
+                </div>
+            </div>
+            <!-- Card Báo cáo bán hàng -->
+            <div class="col-md-4 col-lg-3 mb-4">
+                <div class="card p-3 text-center">
+                    <i class="fas fa-chart-bar card-icon mb-3"></i>
+                    <h5>Báo cáo bán hàng</h5>
+                    <p class="text-muted">Xem thống kê doanh thu và sản phẩm.</p>
+                    <a href="report.html" class="btn btn-primary">Truy cập</a>
+                </div>
+            </div>
+            <!-- Card Tạo hóa đơn -->
+            <div class="col-md-4 col-lg-3 mb-4">
+                <div class="card p-3 text-center">
+                    <i class="fas fa-file-invoice card-icon mb-3"></i>
+                    <h5>Hóa đơn bán hàng</h5>
+                    <p class="text-muted">Lập và in hóa đơn bán hàng.</p>
+                    <a href="invoice.html" class="btn btn-primary">Truy cập</a>
+                </div>
+            </div>
+            <!-- Card Danh sách hóa đơn -->
+            <div class="col-md-4 col-lg-3 mb-4">
+                <div class="card p-3 text-center">
+                    <i class="fas fa-list-alt card-icon mb-3"></i>
+                    <h5>Danh sách hóa đơn</h5>
+                    <p class="text-muted">Xem và in danh sách hóa đơn.</p>
+                    <a href="hoadon-list.html" class="btn btn-primary">Truy cập</a>
+                </div>
+            </div>
+            <!-- Card Xử lý đổi trả -->
+            <div class="col-md-4 col-lg-3 mb-4">
+                <div class="card p-3 text-center">
+                    <i class="fas fa-exchange-alt card-icon mb-3"></i>
+                    <h5>Xử lý đổi trả</h5>
+                    <p class="text-muted">Ghi nhận và xử lý yêu cầu đổi trả.</p>
+                    <a href="doitra.html" class="btn btn-primary">Truy cập</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function logout() {
+        if (confirm('Bạn có chắc muốn đăng xuất?')) {
+            localStorage.removeItem('maNV');
+            localStorage.removeItem('token');
+            window.location.href = 'login.html'; // Điều hướng đến trang đăng nhập
+        }
+    }
+</script>
+</body>
+</html>

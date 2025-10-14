@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thêm sản phẩm</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .error {
+            color: red;
+            font-size: 0.9em;
+            display: none;
+        }
+        .preview-image {
+            max-width: 200px;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="manage-categories.html">Quản lý danh mục</a></li>
+            <li class="breadcrumb-item"><a href="category-detail.html?maDM=" id="categoryLink">Chi tiết danh mục</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Thêm sản phẩm</li>
+        </ol>
+    </nav>
+    <div class="card p-3">
+        <h2>Thêm sản phẩm mới</h2>
+        <form id="addProductForm">
+            <input type="hidden" id="maDanhMuc">
+            <div class="mb-3">
+                <label for="tenSP" class="form-label">Tên sản phẩm <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="tenSP" required>
+                <div id="tenSPError" class="error">Tên sản phẩm không được để trống</div>
+            </div>
+            <div class="mb-3">
+                <label for="giaBan" class="form-label">Giá bán <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="giaBan" step="0.01" required>
+                <div id="giaBanError" class="error">Giá bán phải lớn hơn 0</div>
+            </div>
+            <div class="mb-3">
+                <label for="soLuongTon" class="form-label">Số lượng tồn <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="soLuongTon" required>
+                <div id="soLuongTonError" class="error">Số lượng tồn phải lớn hơn 0</div>
+            </div>
+            <div class="mb-3">
+                <label for="kichThuoc" class="form-label">Kích thước <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="kichThuoc" required>
+                <div id="kichThuocError" class="error">Kích thước không được để trống</div>
+            </div>
+            <div class="mb-3">
+                <label for="mauSac" class="form-label">Màu sắc <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="mauSac" required>
+                <div id="mauSacError" class="error">Màu sắc không được để trống</div>
+            </div>
+            <div class="mb-3">
+                <label for="chatLieu" class="form-label">Chất liệu <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="chatLieu" required>
+                <div id="chatLieuError" class="error">Chất liệu không được để trống</div>
+            </div>
+            <div class="mb-3">
+                <label for="moTa" class="form-label">Mô tả</label>
+                <textarea class="form-control" id="moTa" rows="3"></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="imageFile" class="form-label">Hình ảnh sản phẩm <span class="text-danger">*</span></label>
+                <input type="file" class="form-control" id="imageFile" accept="image/*" required>
+                <div id="imageError" class="error">Vui lòng chọn hình ảnh</div>
+                <img id="previewImage" class="preview-image" alt="Xem trước hình ảnh">
+            </div>
+            <button type="submit" class="btn btn-primary">Lưu</button>
+            <a href="javascript:history.back()" class="btn btn-secondary ms-2">Quay lại</a>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const maDM = urlParams.get('maDM');
+
+    if (maDM) {
+        document.getElementById('maDanhMuc').value = maDM;
+        document.getElementById('categoryLink').href = `category-detail.html?maDM=${maDM}`;
+        document.getElementById('categoryLink').textContent = 'Chi tiết danh mục';
+    } else {
+        alert('Không tìm thấy mã danh mục!');
+        window.location.href = 'manage-categories.html';
+    }
+
+    // Xem trước hình ảnh
+    document.getElementById('imageFile').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('previewImage');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Upload hình ảnh lên Cloudinary
+    async function uploadImage(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', 'minhnhut'); // Thay bằng upload preset của bạn
+        try {
+            const response = await fetch('https://api.cloudinary.com/v1_1/dpofwhvku/image/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            if (data.secure_url) {
+                return data.secure_url;
+            } else {
+                throw new Error('Upload hình ảnh thất bại');
+            }
+        } catch (error) {
+            throw new Error('Lỗi khi upload hình ảnh: ' + error.message);
+        }
+    }
+
+    document.getElementById('addProductForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Lấy giá trị từ form
+        const tenSP = document.getElementById('tenSP').value.trim();
+        const giaBan = parseFloat(document.getElementById('giaBan').value);
+        const soLuongTon = parseInt(document.getElementById('soLuongTon').value);
+        const kichThuoc = document.getElementById('kichThuoc').value.trim();
+        const mauSac = document.getElementById('mauSac').value.trim();
+        const chatLieu = document.getElementById('chatLieu').value.trim();
+        const moTa = document.getElementById('moTa').value.trim();
+        const imageFile = document.getElementById('imageFile').files[0];
+        const maDanhMuc = document.getElementById('maDanhMuc').value;
+
+        // Kiểm tra validation
+        let isValid = true;
+
+        if (!tenSP) {
+            document.getElementById('tenSPError').style.display = 'block';
+            isValid = false;
+        } else {
+            document.getElementById('tenSPError').style.display = 'none';
+        }
+
+        if (isNaN(giaBan) || giaBan <= 0) {
+            document.getElementById('giaBanError').style.display = 'block';
+            isValid = false;
+        } else {
+            document.getElementById('giaBanError').style.display = 'none';
+        }
+
+        if (isNaN(soLuongTon) || soLuongTon <= 0) {
+            document.getElementById('soLuongTonError').style.display = 'block';
+            isValid = false;
+        } else {
+            document.getElementById('soLuongTonError').style.display = 'none';
+        }
+
+        if (!kichThuoc) {
+            document.getElementById('kichThuocError').style.display = 'block';
+            isValid = false;
+        } else {
+            document.getElementById('kichThuocError').style.display = 'none';
+        }
+
+        if (!mauSac) {
+            document.getElementById('mauSacError').style.display = 'block';
+            isValid = false;
+        } else {
+            document.getElementById('mauSacError').style.display = 'none';
+        }
+
+        if (!chatLieu) {
+            document.getElementById('chatLieuError').style.display = 'block';
+            isValid = false;
+        } else {
+            document.getElementById('chatLieuError').style.display = 'none';
+        }
+
+        if (!imageFile) {
+            document.getElementById('imageError').style.display = 'block';
+            isValid = false;
+        } else {
+            document.getElementById('imageError').style.display = 'none';
+        }
+
+        if (!maDanhMuc) {
+            alert('Mã danh mục không hợp lệ!');
+            isValid = false;
+        }
+
+        if (isValid) {
+            try {
+                // Upload hình ảnh lên Cloudinary
+                const hinhAnh = await uploadImage(imageFile);
+                const product = {
+                    tenSP: tenSP,
+                    giaBan: giaBan,
+                    soLuongTon: soLuongTon,
+                    kichThuoc: kichThuoc,
+                    mauSac: mauSac,
+                    chatLieu: chatLieu,
+                    maDanhMuc: maDanhMuc,
+                    moTa: moTa,
+                    hinhAnh: hinhAnh
+                };
+
+                // Debug: Kiểm tra object trước khi gửi
+                console.log('Dữ liệu gửi lên API:', product);
+
+                const response = await fetch('/api/products', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(product)
+                });
+
+                if (response.ok) {
+                    alert('Thêm sản phẩm thành công!');
+                    window.location.href = `category-detail.html?maDM=${maDM}`;
+                } else {
+                    const data = await response.json();
+                    throw new Error(data.message || Object.values(data).join(', ') || 'Thêm sản phẩm thất bại!');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Lỗi: ' + error.message);
+            }
+        }
+    });
+</script>
+</body>
+</html>

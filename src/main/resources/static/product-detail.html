@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết sản phẩm</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .product-image {
+            max-width: 300px;
+            height: auto;
+            border-radius: 5px;
+        }
+        .card {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="search-products.html">Tra cứu sản phẩm</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Chi tiết sản phẩm</li>
+            <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
+        </ol>
+    </nav>
+    <div class="card p-3">
+        <div class="row">
+            <div class="col-md-4">
+                <img id="productImage" src="" class="product-image" alt="Hình ảnh sản phẩm">
+            </div>
+            <div class="col-md-8">
+                <h4 id="productName"></h4>
+                <p><strong>Giá bán:</strong> <span id="productGiaBan"></span>đ</p>
+                <p><strong>Số lượng tồn kho:</strong> <span id="productSoLuongTon"></span></p>
+                <p><strong>Kích thước:</strong> <span id="productKichThuoc"></span></p>
+                <p><strong>Màu sắc:</strong> <span id="productMauSac"></span></p>
+                <p><strong>Chất liệu:</strong> <span id="productChatLieu"></span></p>
+                <p><strong>Danh mục:</strong> <span id="productMaDanhMuc"></span></p>
+                <p><strong>Mô tả:</strong> <span id="productMoTa"></span></p>
+            </div>
+        </div>
+        <a href="search-products.html" class="btn btn-secondary mt-3">Quay lại</a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Lấy maSP từ query param
+    const urlParams = new URLSearchParams(window.location.search);
+    const maSP = urlParams.get('maSP');
+
+    async function loadProductDetails(maSP) {
+        try {
+            const response = await fetch(`/api/products/${maSP}`);
+            if (!response.ok) throw new Error('Sản phẩm không tồn tại');
+            const product = await response.json();
+
+            // Lấy thông tin danh mục
+            const categoryResponse = await fetch(`/api/categories/${product.maDanhMuc}`);
+            if (!categoryResponse.ok) throw new Error(`Không thể tải danh mục cho mã ${product.maDanhMuc}`);
+            const category = await categoryResponse.json();
+            const tenDanhMuc = category.tenDM || 'Chưa có tên';
+
+            // Hiển thị thông tin sản phẩm
+            document.getElementById('productImage').src = product.hinhAnh;
+            document.getElementById('productName').textContent = product.tenSP;
+            document.getElementById('productGiaBan').textContent = product.giaBan.toLocaleString('vi-VN');
+            document.getElementById('productSoLuongTon').textContent = product.soLuongTon;
+            document.getElementById('productKichThuoc').textContent = product.kichThuoc;
+            document.getElementById('productMauSac').textContent = product.mauSac;
+            document.getElementById('productChatLieu').textContent = product.chatLieu;
+            document.getElementById('productMaDanhMuc').textContent = tenDanhMuc;
+            document.getElementById('productMoTa').textContent = product.moTa || 'Không có mô tả';
+        } catch (error) {
+            alert(error.message);
+            window.location.href = 'search-products.html'; // Quay lại nếu lỗi
+        }
+    }
+
+    if (maSP) {
+        loadProductDetails(maSP);
+    } else {
+        alert('Không tìm thấy mã sản phẩm');
+        window.location.href = 'search-products.html';
+    }
+</script>
+</body>
+</html>

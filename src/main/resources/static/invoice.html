@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hóa đơn bán hàng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card { margin-bottom: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        .product-list, .invoice-items { max-height: 300px; overflow-y: auto; }
+        .invoice-item { padding: 5px 0; display: flex; align-items: center; gap: 10px; }
+        .loading { text-align: center; color: #666; }
+        .product-item {
+            display: grid;
+            grid-template-columns: 1fr 100px 100px;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 0;
+        }
+        .product-item input[type="number"] { width: 80px; }
+        .product-item button { width: 80px; }
+        .section-divider { border-top: 1px solid #ddd; margin: 20px 0; padding-top: 20px; }
+        .card-body { padding: 20px; }
+    </style>
+</head>
+<body>
+<div class="container mt-4">
+    <h2>Hóa đơn bán hàng</h2>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Tạo hóa đơn</li>
+        </ol>
+    </nav>
+    <div class="card">
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="searchProduct" class="form-label">Tìm kiếm sản phẩm</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="searchProduct" placeholder="Nhập tên hoặc mã sản phẩm">
+                    <button class="btn btn-primary" type="button" onclick="searchProducts()">Tìm kiếm</button>
+                </div>
+            </div>
+            <div class="mb-3 product-list" id="productList"></div>
+            <div class="section-divider"></div>
+            <h5>Danh sách sản phẩm trong hóa đơn</h5>
+            <div class="mb-3 invoice-items" id="invoiceItems"></div>
+            <div class="section-divider"></div>
+            <div class="mb-3">
+                <p><strong>Tạm tính:</strong> <span id="subtotal">0đ</span></p>
+                <p><strong>Khuyến mãi:</strong> <span id="discount">0đ</span></p>
+                <p><strong>Tổng cộng:</strong> <span id="total">0đ</span></p>
+            </div>
+            <div class="section-divider"></div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="searchCustomer" class="form-label">Tìm kiếm khách hàng</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="searchCustomer" placeholder="Nhập tên khách hàng">
+                            <button class="btn btn-primary" type="button" onclick="searchCustomers()">Tìm kiếm</button>
+                        </div>
+                    </div>
+                    <div class="mb-3" id="customerList"></div>
+                    <button class="btn btn-secondary" id="addCustomerBtn" disabled>Thêm khách hàng mới</button>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="paymentMethod" class="form-label">Phương thức thanh toán</label>
+                        <select class="form-select" id="paymentMethod" onchange="toggleCashInput()">
+                            <option value="TienMat">Tiền mặt</option>
+                            <option value="The">Thẻ</option>
+                            <option value="ChuyenKhoan">Chuyển khoản</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="cashInput" style="display: none;">
+                        <label for="cashAmount" class="form-label">Số tiền khách đưa</label>
+                        <input type="number" class="form-control" id="cashAmount" step="1000" placeholder="Nhập số tiền">
+                        <p><strong>Tiền thừa:</strong> <span id="change">0đ</span></p>
+                    </div>
+                    <button class="btn btn-danger" onclick="cancelInvoice()">Hủy hóa đơn</button>
+                    <button class="btn btn-success" onclick="confirmInvoice()">Xác nhận</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let products = [];
+    let customers = [];
+    let invoiceItems = new Map();
+    let isLoading = false;
+
+    function showLoading(elementId) {
+        document.getElementById(elementId).innerHTML = '<div class="loading">Đang tải...</div>';
+    }
+
+    function loadProducts() {
+        if (isLoading) return;
+        isLoading = true;
+        showLoading('productList');
+        fetch('/api/products/search')
+            .then(response => {
+                if (!response.ok) throw new Error('Không thể tải danh sách sản phẩm. Mã lỗi: ' + response.status);
+                return response.json();
+            })
+            .then(data => {
+                products = data;
+                updateProductList();
+                isLoading = false;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Lỗi: ' + error.message);
+                isLoading = false;
+            });
+    }
+
+    function searchProducts() {
+        const keyword = document.getElementById('searchProduct').value.trim().toLowerCase();
+        const filtered = products.filter(p =>
+            p.tenSP.toLowerCase().includes(keyword) || p.maSP.includes(keyword)
+        );
+        updateProductList(filtered);
+    }
+
+    function updateProductList(filteredProducts = products) {
+        const list = document.getElementById('productList');
+        list.innerHTML = '';
+        if (filteredProducts.length === 0) {
+            list.innerHTML = '<p>Không tìm thấy sản phẩm nào.</p>';
+            return;
+        }
+        filteredProducts.forEach(product => {
+            const div = document.createElement('div');
+            div.className = 'product-item';
+            div.innerHTML = `
+                <span>${product.tenSP} (Mã: ${product.maSP}, Giá: ${product.giaBan.toLocaleString('vi-VN')}đ)</span>
+                <input type="number" class="form-control form-control-sm" min="1" value="1" data-product-id="${product.maSP}" onchange="validateQuantity(this, '${product.maSP}')">
+                <button class="btn btn-sm btn-primary" onclick="addToInvoice('${product.maSP}')">Thêm</button>
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    function validateQuantity(input, maSP) {
+        const product = products.find(p => p.maSP === maSP);
+        const quantity = parseInt(input.value);
+        if (quantity <= 0 || quantity > product.soLuongTon) {
+            input.value = 1;
+            alert('Số lượng không hợp lệ hoặc vượt tồn kho!');
+        }
+    }
+
+    function addToInvoice(maSP) {
+        const product = products.find(p => p.maSP === maSP);
+        const quantityInput = document.querySelector(`input[data-product-id="${maSP}"]`);
+        const quantity = quantityInput ? parseInt(quantityInput.value) : 1;
+        if (product && quantity > 0 && quantity <= product.soLuongTon) {
+            if (invoiceItems.has(maSP)) {
+                const item = invoiceItems.get(maSP);
+                item.quantity += quantity;
+            } else {
+                invoiceItems.set(maSP, { ...product, quantity, chietKhau: 0.0 });
+            }
+            updateInvoiceItems();
+            calculateTotals();
+            alert('Đã thêm sản phẩm vào hóa đơn!');
+        } else {
+            alert('Số lượng không hợp lệ hoặc vượt tồn kho!');
+        }
+    }
+
+    function updateInvoiceItems() {
+        const list = document.getElementById('invoiceItems');
+        list.innerHTML = '';
+        invoiceItems.forEach((item, maSP) => {
+            const div = document.createElement('div');
+            div.className = 'invoice-item d-flex align-items-center gap-2';
+            const thanhTien = item.quantity * item.giaBan * (1 - item.chietKhau / 100);
+            div.innerHTML = `
+                <span>${item.tenSP}</span>
+                <input type="number" class="form-control form-control-sm" style="width: 80px;" min="1" value="${item.quantity}" data-product-id="${maSP}" onchange="updateQuantity('${maSP}', this.value)">
+                <span>${thanhTien.toLocaleString('vi-VN')}đ</span>
+                <button class="btn btn-sm btn-danger" onclick="removeFromInvoice('${maSP}')">Xóa</button>
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    function updateQuantity(maSP, quantity) {
+        const numQuantity = parseInt(quantity);
+        const product = products.find(p => p.maSP === maSP);
+        const item = invoiceItems.get(maSP);
+        if (numQuantity > 0 && numQuantity <= (product ? product.soLuongTon : Infinity)) {
+            item.quantity = numQuantity;
+            updateInvoiceItems();
+            calculateTotals();
+        } else {
+            alert('Số lượng không hợp lệ hoặc vượt tồn kho!');
+        }
+    }
+
+    function removeFromInvoice(maSP) {
+        invoiceItems.delete(maSP);
+        updateInvoiceItems();
+        calculateTotals();
+    }
+
+    async function calculateTotals() {
+        let subtotal = 0;
+        let discount = 0;
+        for (const [maSP, item] of invoiceItems) {
+            const thanhTien = item.quantity * item.giaBan;
+            subtotal += thanhTien;
+            try {
+                const response = await fetch(`/api/promotions/search?maSP=${maSP}`);
+                if (response.ok) {
+                    const promotions = await response.json();
+                    const promotion = promotions.find(p => p.maSP.includes(maSP));
+                    item.chietKhau = promotion ? promotion.phanTramGiam || 0 : 0;
+                }
+            } catch (error) {
+                console.error('Lỗi lấy khuyến mãi cho ' + maSP + ':', error);
+            }
+            discount += thanhTien * (item.chietKhau / 100);
+        }
+        const total = subtotal - discount;
+        document.getElementById('subtotal').textContent = subtotal.toLocaleString('vi-VN') + 'đ';
+        document.getElementById('discount').textContent = discount.toLocaleString('vi-VN') + 'đ';
+        document.getElementById('total').textContent = total.toLocaleString('vi-VN') + 'đ';
+        calculateChange();
+    }
+
+    function loadCustomers() {
+        fetch('/api/khachhang')
+            .then(response => {
+                if (!response.ok) throw new Error('Không thể tải danh sách khách hàng. Mã lỗi: ' + response.status);
+                return response.json();
+            })
+            .then(data => {
+                customers = data;
+                updateCustomerList();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Lỗi: ' + error.message);
+            });
+    }
+
+    function searchCustomers() {
+        const keyword = document.getElementById('searchCustomer').value.trim().toLowerCase();
+        fetch(`/api/khachhang/search?keyword=${keyword}`)
+            .then(response => {
+                if (!response.ok) throw new Error('Không thể tải danh sách khách hàng. Mã lỗi: ' + response.status);
+                return response.json();
+            })
+            .then(data => {
+                customers = data;
+                updateCustomerList();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Lỗi: ' + error.message);
+            });
+    }
+
+    function updateCustomerList(filteredCustomers = customers) {
+        const list = document.getElementById('customerList');
+        list.innerHTML = '';
+        if (filteredCustomers.length === 0) {
+            list.innerHTML = '<p>Không tìm thấy khách hàng nào.</p>';
+            return;
+        }
+        filteredCustomers.forEach(customer => {
+            const soDienThoai = customer.soDienThoai || 'Chưa có số';
+            const email = customer.email || 'Chưa có email';
+            const diaChi = customer.diaChi || 'Chưa có địa chỉ';
+            const div = document.createElement('div');
+            div.className = 'form-check';
+            div.innerHTML = `
+                <input class="form-check-input" type="radio" name="selectedCustomer" value="${customer.maKH}" id="customer_${customer.maKH}">
+                <label class="form-check-label" for="customer_${customer.maKH}">
+                    ${customer.hoTen || 'Chưa có tên'} (SĐT: ${soDienThoai}, Email: ${email}, Địa chỉ: ${diaChi})
+                </label>
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    function toggleCashInput() {
+        const method = document.getElementById('paymentMethod').value;
+        document.getElementById('cashInput').style.display = method === 'TienMat' ? 'block' : 'none';
+        calculateChange();
+    }
+
+    function calculateChange() {
+        let totalText = document.getElementById('total').textContent || '0đ';
+        let total = parseInt(totalText.replace('đ', '').replace(/\./g, '').replace(/,/g, '')) || 0;
+        let cashAmount = parseInt(document.getElementById('cashAmount').value) || 0;
+        let change = cashAmount - total;
+        document.getElementById('change').textContent = (change >= 0 ? change : 0).toLocaleString('vi-VN') + 'đ';
+    }
+
+    function cancelInvoice() {
+        if (confirm('Bạn có chắc muốn hủy hóa đơn?')) {
+            invoiceItems.clear();
+            updateInvoiceItems();
+            calculateTotals();
+        }
+    }
+
+    async function confirmInvoice() {
+        const maKH = document.querySelector('input[name="selectedCustomer"]:checked')?.value;
+        const phuongThucThanhToan = document.getElementById('paymentMethod').value;
+        const cashAmount = phuongThucThanhToan === 'TienMat' ? parseFloat(document.getElementById('cashAmount').value) || 0 : null;
+        if (!maKH) {
+            alert('Vui lòng chọn khách hàng!');
+            return;
+        }
+        const total = parseFloat(document.getElementById('total').textContent.replace('đ', '').replace(/,/g, '')) || 0;
+        if (phuongThucThanhToan === 'TienMat' && cashAmount < total) {
+            alert('Số tiền khách đưa không đủ!');
+            return;
+        }
+        const maNV = localStorage.getItem('maNV') || "68e7d120c4ea8afb23c08ed8"; // Lấy từ JWT hoặc localStorage
+        const hoaDonData = {
+            hoaDon: {
+                maNV: maNV,
+                maKH: maKH,
+                ngayBan: new Date(),
+                tongTien: total,
+                trangThai: "DaThanhToan",
+                phuongThucThanhToan: phuongThucThanhToan
+            },
+            chiTietList: Array.from(invoiceItems.entries()).map(([maSP, item]) => ({
+                maSP: maSP,
+                soLuong: item.quantity,
+                donGia: item.giaBan,
+                chietKhau: item.chietKhau,
+                thanhTien: item.quantity * item.giaBan * (1 - item.chietKhau / 100)
+            }))
+        };
+        try {
+            const response = await fetch('/api/hoadon', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(hoaDonData)
+            });
+            if (response.ok) {
+                alert('Lưu hóa đơn thành công!');
+                invoiceItems.clear();
+                updateInvoiceItems();
+                calculateTotals();
+            } else {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Lưu hóa đơn thất bại!');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Lỗi: ' + error.message);
+        }
+    }
+
+    document.getElementById('cashAmount').addEventListener('input', calculateChange);
+
+    window.onload = function() {
+        loadProducts();
+        loadCustomers();
+        toggleCashInput();
+    };
+</script>
+</body>
+</html>
