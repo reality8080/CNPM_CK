@@ -2,6 +2,7 @@
 
 const API_BASE_URL = '/api/v1';
 const EMPLOYEE_API = `${API_BASE_URL}/admin/employees`; // Giữ lại hằng số này
+const CUSTOMER_API = `${API_BASE_URL}/admin/customers`;
 
 async function getAuthHeader() {
     let token = localStorage.getItem('accessToken');
