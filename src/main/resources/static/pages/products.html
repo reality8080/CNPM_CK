@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h5 class="fw-bold text-primary">🛍️ Quản lý sản phẩm</h5>
+  <button class="btn btn-primary btn-sm" id="btnNewProd">+ Thêm sản phẩm</button>
+</div>
+
+<div class="row" id="prodList"></div>
+<div id="prodStatus" class="mt-2 small text-muted"></div>
+
+<!-- Modal -->
+<div class="modal fade" id="prodModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header"><h6 class="modal-title">Sản phẩm</h6></div>
+      <div class="modal-body">
+        <input id="prodId" type="hidden">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3"><label>Tên</label><input id="prodName" class="form-control"></div>
+            <div class="mb-3"><label>Mô tả</label><textarea id="prodDesc" class="form-control"></textarea></div>
+            <div class="mb-3"><label>Giá bán (VND)</label><input id="prodPrice" type="number" step="1000" class="form-control"></div>
+            <div class="mb-3"><label>Số lượng</label><input id="prodQty" type="number" class="form-control"></div>
+            <div class="mb-3"><label>Danh mục</label><select id="prodCat" class="form-select"></select></div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3"><label>Hình ảnh</label><input id="prodImg" type="file" class="form-control" multiple></div>
+            <div id="imgPreview" class="d-flex gap-2 flex-wrap"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button class="btn btn-primary" id="saveProd">Lưu</button>
+      </div>
+    </div>
+  </div>
+</div>

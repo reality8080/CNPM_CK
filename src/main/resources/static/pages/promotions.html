@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h5 class="fw-bold text-primary">💲 Quản lý khuyến mãi</h5>
+  <button class="btn btn-primary btn-sm" id="btnNewPromo">+ Tạo khuyến mãi</button>
+</div>
+
+<div class="card p-3" id="promoList"></div>
+
+<!-- Modal tạo/sửa khuyến mãi -->
+<div class="modal fade" id="promoModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title">Khuyến mãi</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input id="promoId" type="hidden">
+        <div class="mb-2"><label class="form-label">Tên</label><input id="promoName" class="form-control"></div>
+        <div class="mb-2">
+          <label class="form-label">Loại</label>
+          <select id="promoType" class="form-select">
+            <option value="PERCENT">PERCENT</option>
+            <option value="FIXED">FIXED</option>
+          </select>
+        </div>
+        <div class="mb-2"><label class="form-label">Giá trị</label><input id="promoValue" type="number" step="0.01" class="form-control"></div>
+        <div class="mb-2"><label class="form-label">Ngày bắt đầu</label><input id="promoStart" type="datetime-local" class="form-control"></div>
+        <div class="mb-2"><label class="form-label">Ngày kết thúc</label><input id="promoEnd" type="datetime-local" class="form-control"></div>
+        <div class="mb-2"><label class="form-label">Đơn tối thiểu</label><input id="promoMin" type="number" step="0.01" class="form-control"></div>
+        <div class="mb-2"><label class="form-label">Số lần dùng tối đa</label><input id="promoMax" type="number" class="form-control"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button class="btn btn-primary" id="btnSavePromo">Lưu</button>
+      </div>
+    </div>
+  </div>
+</div>
