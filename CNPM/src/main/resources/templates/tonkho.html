@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quản Lý Tồn Kho</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script
+	src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<style>
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body {
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+		'Helvetica Neue', Arial, sans-serif;
+	background: #f8f9fa;
+	color: #212529;
+	line-height: 1.6;
+}
+
+.container-main {
+	max-width: 1400px;
+	margin: 0 auto;
+	padding: 2rem 1.5rem;
+}
+
+.page-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	margin-bottom: 2rem;
+	gap: 2rem;
+}
+
+.page-header h2 {
+	font-size: 1.75rem;
+	font-weight: 600;
+	color: #212529;
+	margin: 0;
+}
+
+.header-stats {
+	display: flex;
+	gap: 2rem;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	align-items: center;
+}
+
+.stat-item {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+}
+
+.stat-item .label {
+	font-size: 0.75rem;
+	color: #6c757d;
+	font-weight: 500;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	margin-bottom: 0.25rem;
+}
+
+.stat-item .value {
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: #0d6efd;
+}
+
+.stat-item.success .value {
+	color: #198754;
+}
+
+.stat-item.warning .value {
+	color: #dc3545;
+}
+
+.stat-item.info .value {
+	color: #6c757d;
+}
+
+.content-card {
+	background: white;
+	border: 1px solid #e9ecef;
+	border-radius: 8px;
+	padding: 1.5rem;
+	margin-bottom: 1.5rem;
+}
+
+.content-card .card-title {
+	font-size: 1rem;
+	font-weight: 600;
+	color: #212529;
+	margin-bottom: 1.25rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.form-label {
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: #495057;
+	margin-bottom: 0.5rem;
+}
+
+.form-control, .form-select {
+	border: 1px solid #dee2e6;
+	border-radius: 6px;
+	padding: 0.625rem 0.875rem;
+	font-size: 0.9375rem;
+	transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.form-control:focus, .form-select:focus {
+	border-color: #0d6efd;
+	box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+	outline: none;
+}
+
+.btn {
+	padding: 0.625rem 1.25rem;
+	font-size: 0.9375rem;
+	font-weight: 500;
+	border-radius: 6px;
+	border: none;
+	transition: all 0.15s;
+}
+
+.btn-primary {
+	background: #0d6efd;
+	color: white;
+}
+
+.btn-primary:hover {
+	background: #0b5ed7;
+}
+
+.btn-success {
+	background: #198754;
+	color: white;
+}
+
+.btn-success:hover {
+	background: #157347;
+}
+
+.table-container {
+	overflow-x: auto;
+	border-radius: 8px;
+	border: 1px solid #e9ecef;
+}
+
+table {
+	width: 100%;
+	margin: 0;
+	border-collapse: collapse;
+}
+
+thead {
+	background: #f8f9fa;
+	border-bottom: 2px solid #e9ecef;
+}
+
+thead th {
+	padding: 0.875rem 1rem;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	color: #495057;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	white-space: nowrap;
+	border: none;
+}
+
+tbody td {
+	padding: 1rem;
+	border-bottom: 1px solid #f1f3f5;
+	color: #495057;
+	font-size: 0.9375rem;
+	vertical-align: middle;
+}
+
+tbody tr:last-child td {
+	border-bottom: none;
+}
+
+tbody tr:hover {
+	background: #f8f9fa;
+}
+
+.product-img {
+	width: 48px;
+	height: 48px;
+	object-fit: cover;
+	border-radius: 6px;
+	border: 1px solid #e9ecef;
+}
+
+.stock-badge {
+	padding: 0.375rem 0.75rem;
+	border-radius: 4px;
+	font-size: 0.8125rem;
+	font-weight: 500;
+	display: inline-block;
+}
+
+.stock-high {
+	background: #d1f4e0;
+	color: #0f5132;
+}
+
+.stock-medium {
+	background: #fff3cd;
+	color: #997404;
+}
+
+.stock-low {
+	background: #f8d7da;
+	color: #842029;
+}
+
+.empty-state {
+	text-align: center;
+	padding: 3rem 1rem;
+	color: #adb5bd;
+}
+
+.empty-state i {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.empty-state p {
+	margin: 0;
+	font-size: 0.9375rem;
+}
+
+@media ( max-width : 768px) {
+	.page-header {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+	.header-stats {
+		justify-content: flex-start;
+		width: 100%;
+	}
+	.stat-item {
+		align-items: flex-start;
+	}
+	.stat-item .value {
+		font-size: 1.25rem;
+	}
+}
+</style>
+</head>
+<body>
+	<div class="container-main">
+		<div class="page-header">
+			<div>
+				<h2>Quản Lý Tồn Kho</h2>
+			</div>
+			<div class="header-stats">
+				<div class="stat-item">
+					<div class="label">Tổng Sản Phẩm</div>
+					<div class="value" id="tongSP">0</div>
+				</div>
+				<div class="stat-item success">
+					<div class="label">Tồn Bình Thường</div>
+					<div class="value" id="tonBinhThuong">0</div>
+				</div>
+				<div class="stat-item warning">
+					<div class="label">Cảnh Báo Tồn Thấp</div>
+					<div class="value" id="tonThap">0</div>
+				</div>
+				<div class="stat-item info">
+					<div class="label">Tổng Giá Trị Tồn</div>
+					<div class="value" id="giaTriTon">0₫</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="content-card">
+			<div class="card-title">
+				<i class="bi bi-funnel"></i> Bộ Lọc & Tìm Kiếm
+			</div>
+			<div class="row">
+				<div class="col-md-4 mb-3">
+					<label class="form-label">Tìm kiếm sản phẩm</label> <input
+						type="text" class="form-control" id="searchInput"
+						placeholder="Tìm theo mã hoặc tên sản phẩm...">
+				</div>
+				<div class="col-md-3 mb-3">
+					<label class="form-label">Danh mục</label> <select
+						class="form-select" id="categoryFilter">
+						<option value="">Tất cả danh mục</option>
+					</select>
+				</div>
+				<div class="col-md-3 mb-3">
+					<label class="form-label">Trạng thái tồn kho</label> <select
+						class="form-select" id="stockFilter">
+						<option value="">Tất cả</option>
+						<option value="high">Tồn cao (>50)</option>
+						<option value="medium">Tồn trung bình (11-50)</option>
+						<option value="low">Tồn thấp (≤10)</option>
+					</select>
+				</div>
+				<div class="col-md-2 mb-3">
+					<label class="form-label">&nbsp;</label>
+					<button class="btn btn-primary w-100" onclick="loadData()">
+						<i class="bi bi-arrow-clockwise"></i> Làm mới
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="content-card">
+
+			<div class="table-container">
+				<table id="table">
+					<thead>
+						<tr>
+							<th>Mã SP</th>
+							<th>Hình ảnh</th>
+							<th>Tên Sản Phẩm</th>
+							<th>Danh Mục</th>
+							<th class="text-center">Số Lượng Tồn</th>
+							<th class="text-center">Trạng Thái</th>
+							<th class="text-end">Đơn Giá</th>
+							<th class="text-end">Giá Trị Tồn</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+
+	<script>
+    	console.log('Script loaded');
+
+    	const Format = {
+    		    currency: (val) => new Intl.NumberFormat('vi-VN', {style: 'currency', currency: 'VND'}).format(val),
+    		    number: (val) => new Intl.NumberFormat('vi-VN').format(val)
+    		};
+		
+        let allData = [];
+
+        $(document).ready(function() {
+            console.log('Document ready');
+            loadCategories();
+            loadData();
+            $('#searchInput, #categoryFilter, #stockFilter').on('input change', filterData);
+        });
+
+        async function loadCategories() {
+            try {
+            	const res = await fetch('/api/danhmuc').then(r => r.json());
+                console.log('Response danhmuc:', res);
+                const categories = res.data || [];
+                console.log('Categories:', categories);
+                $('#categoryFilter').html('<option value="">Tất cả danh mục</option>');
+                categories.forEach(cat => {
+                    $('#categoryFilter').append(`<option value="${cat.tenDM}">${cat.tenDM}</option>`);
+                });
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+
+        async function loadData() {
+            try {
+            	const res = await fetch('/api/tonkho').then(r => r.json());
+                console.log('Response tonkho:', res);
+                allData = res.data || [];
+                console.log('AllData:', allData);
+                filterData();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                $('#table tbody').html(`
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <p>Lỗi tải dữ liệu: ${error.message}</p>
+                            </div>
+                        </td>
+                    </tr>
+                `);
+            }
+        }
+        function filterData() {
+            const search = $('#searchInput').val().toLowerCase();
+            const category = $('#categoryFilter').val();
+            const stock = $('#stockFilter').val();
+            
+            console.log('Filter params:', {search, category, stock});
+
+            let filtered = allData;
+            console.log('Before filter:', filtered.length);
+
+            if (search) {
+                filtered = filtered.filter(sp =>
+                    sp.maSP.toLowerCase().includes(search) ||
+                    sp.tenSP.toLowerCase().includes(search)
+                );
+            }
+
+            if (category) {
+                filtered = filtered.filter(sp => sp.tenDanhMuc === category);
+            }
+
+            if (stock) {
+                filtered = filtered.filter(sp => {
+                    if (stock === 'high') return sp.soLuongTon > 50;
+                    if (stock === 'medium') return sp.soLuongTon >= 11 && sp.soLuongTon <= 50;
+                    if (stock === 'low') return sp.soLuongTon <= 10;
+                    return true;
+                });
+            }
+
+            console.log('After filter:', filtered.length);
+            console.log('Filtered data:', filtered);
+            
+            renderTable(filtered);
+            updateStats(filtered);
+        }
+        function renderTable(data) {
+            console.log('Rendering table with data:', data);
+            const tbody = $('#table tbody');
+            tbody.empty();
+
+            if (data.length === 0) {
+                tbody.html(`
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <i class="bi bi-inbox"></i>
+                                <p>Không tìm thấy sản phẩm nào</p>
+                            </div>
+                        </td>
+                    </tr>
+                `);
+                return;
+            }
+
+            data.forEach(sp => {
+                const giaTriTon = sp.soLuongTon * (sp.giaBan || 0);
+                let stockClass = 'stock-high';
+                let stockText = 'Tốt';
+                if (sp.soLuongTon <= 10) {
+                    stockClass = 'stock-low';
+                    stockText = 'Tồn thấp';
+                } else if (sp.soLuongTon <= 50) {
+                    stockClass = 'stock-medium';
+                    stockText = 'Trung bình';
+                }
+
+                tbody.append(`
+                    <tr>
+                        <td><strong>${sp.maSP}</strong></td>
+                        <td>
+                            <img src="${sp.hinhAnh || '/assets/img/no-image.png'}" class="product-img" alt="${sp.tenSP}">
+                        </td>
+                        <td>${sp.tenSP}</td>
+                        <td>${sp.tenDanhMuc}</td>
+                        <td class="text-center">
+                            <strong>${Format.number(sp.soLuongTon)}</strong>
+                        </td>
+                        <td class="text-center">
+                            <span class="stock-badge ${stockClass}">${stockText}</span>
+                        </td>
+                        <td class="text-end">${Format.currency(sp.giaBan || 0)}</td>
+                        <td class="text-end"><strong>${Format.currency(giaTriTon)}</strong></td>
+                    </tr>
+                `);
+            });
+        }
+        function updateStats(data) {
+            const tongSP = data.length;
+            const tonThap = data.filter(sp => sp.soLuongTon <= 10).length;
+            const tonBinhThuong = data.filter(sp => sp.soLuongTon > 10).length;
+            const giaTriTon = data.reduce((sum, sp) => sum + (sp.soLuongTon * sp.giaBan), 0);
+
+            $('#tongSP').text(Format.number(tongSP));
+            $('#tonBinhThuong').text(Format.number(tonBinhThuong));
+            $('#tonThap').text(Format.number(tonThap));
+            $('#giaTriTon').text(Format.currency(giaTriTon));
+        }
+
+        function exportExcel() {
+            alert('Chức năng xuất Excel đang được phát triển');
+        }
+    </script>
+</body>
+</html>
