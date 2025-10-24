@@ -1,0 +1,972 @@
+<style>
+  .cart-item {
+    transition: all 0.3s ease;
+  }
+
+  .cart-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  .quantity-btn {
+    transition: all 0.2s ease;
+  }
+
+  .quantity-btn:hover {
+    background-color: #2f604a;
+    color: white;
+  }
+
+  .remove-btn {
+    transition: all 0.2s ease;
+  }
+
+  .remove-btn:hover {
+    background-color: #dc2626;
+    color: white;
+  }
+
+  .checkout-btn {
+    background: linear-gradient(135deg, #2f604a 0%, #1e3d2e 100%);
+    transition: all 0.3s ease;
+  }
+
+  .checkout-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(47, 96, 74, 0.3);
+  }
+
+  /* Modal animations */
+  #checkoutModal {
+    transition: opacity 0.3s ease;
+  }
+
+  #checkoutModal:not(.hidden) {
+    animation: fadeIn 0.3s ease;
+  }
+
+  #checkoutModal .bg-white {
+    animation: slideIn 0.3s ease;
+  }
+
+  /* Close animation */
+  #checkoutModal.closing {
+    animation: fadeOut 0.3s ease forwards;
+  }
+
+  #checkoutModal.closing .bg-white {
+    animation: slideOut 0.3s ease forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-50px) scale(0.95);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+    }
+
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes slideOut {
+    from {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    to {
+      opacity: 0;
+      transform: translateY(-50px) scale(0.95);
+    }
+  }
+
+  /* Blur effect for main content when modal is open */
+  body.modal-open {
+    overflow: hidden;
+  }
+
+  body.modal-open main {
+    filter: blur(2px);
+    transition: filter 0.3s ease;
+  }
+
+  /* Modal hidden scrollbar but still scrollable */
+  #checkoutModal .bg-white {
+    max-height: 90vh;
+    overflow-y: auto;
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+  }
+
+  #checkoutModal .bg-white::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari and Opera */
+  }
+
+  /* Ensure modal content fits */
+  #checkoutModal .p-6 {
+    max-height: none;
+    overflow: visible;
+  }
+</style>
+
+<div th:replace="~{layouts/main-layout :: layout('Giỏ hàng - THE MONA', ~{::content})}">
+  <div th:fragment="content">
+    <main class="container mx-auto px-4 py-8">
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Cart Items -->
+        <div class="lg:col-span-2">
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <!-- Cart Header -->
+            <div class="bg-[#f8f9fa] px-6 py-4 border-b border-gray-200">
+              <div class="flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-[#2f604a]">Sản phẩm trong giỏ</h2>
+                <span class="text-sm text-gray-600" id="itemCount">3 sản phẩm</span>
+              </div>
+            </div>
+
+            <!-- Cart Items List -->
+            <div class="divide-y divide-gray-200" id="cartItems">
+              <!-- Items will be loaded dynamically from localStorage -->
+            </div>
+
+            <!-- Cart Actions -->
+            <div class="bg-[#f8f9fa] px-6 py-4 border-t border-gray-200">
+              <div class="flex items-center justify-start">
+                <button onclick="continueShopping()"
+                  class="text-[#2f604a] hover:text-[#1e3d2e] font-medium flex items-center space-x-2">
+                  <i class="fas fa-arrow-left"></i>
+                  <span>Tiếp tục mua sắm</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="lg:col-span-1">
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sticky top-8">
+            <h3 class="text-xl font-bold text-[#2f604a] mb-6">Tóm tắt đơn hàng</h3>
+
+            <div class="space-y-4 mb-6">
+              <div class="flex justify-between items-center">
+                <span class="text-gray-600">Tạm tính</span>
+                <span class="font-semibold" id="subtotal">1.100.000 đ</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-gray-600">Phí vận chuyển</span>
+                <span class="font-semibold text-green-600">Miễn phí</span>
+              </div>
+              <hr class="border-gray-200" />
+              <div class="flex justify-between items-center text-lg">
+                <span class="font-bold text-[#2f604a]">Tổng cộng</span>
+                <span class="font-bold text-[#cb5439] text-xl" id="total">1.100.000 đ</span>
+              </div>
+            </div>
+
+
+
+            <!-- Checkout -->
+            <button onclick="showCheckoutModal()"
+              class="checkout-btn w-full py-4 text-white font-bold text-lg rounded-xl mb-4">
+              <i class="fas fa-shopping-cart mr-2"></i>
+              Thanh toán ngay
+            </button>
+
+            <div class="text-center text-sm text-gray-500">
+              <i class="fas fa-shield-alt mr-1"></i> Thanh toán an toàn & bảo mật
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Checkout Modal -->
+<div id="checkoutModal" class="fixed inset-0 z-50 hidden">
+  <!-- Backdrop with blur effect -->
+  <div class="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
+    onclick="console.log('Backdrop clicked'); hideCheckoutModal()"></div>
+
+  <!-- Modal Content -->
+  <div class="relative flex items-center justify-center min-h-screen p-4" onclick="event.stopPropagation()">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between p-6 border-b border-gray-200">
+        <h2 class="text-2xl font-bold text-[#2f604a]">Thông tin thanh toán</h2>
+        <button onclick="hideCheckoutModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6">
+        <form id="checkoutForm" class="space-y-6">
+          <!-- Customer Information -->
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-[#2f604a] mb-4">Thông tin khách hàng</h3>
+
+            <!-- Username -->
+            <div>
+              <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-user mr-2"></i>Tên khách hàng *
+              </label>
+              <input type="text" id="username" name="username" required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2f604a] focus:border-transparent"
+                placeholder="Nhập tên của bạn">
+            </div>
+
+            <!-- Phone -->
+            <div>
+              <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-phone mr-2"></i>Số điện thoại *
+              </label>
+              <input type="tel" id="phone" name="phone" required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2f604a] focus:border-transparent"
+                placeholder="Nhập số điện thoại">
+            </div>
+
+            <!-- Address -->
+            <div>
+              <label for="address" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-map-marker-alt mr-2"></i>Địa chỉ giao hàng *
+              </label>
+              <textarea id="address" name="address" rows="3" required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2f604a] focus:border-transparent resize-none"
+                placeholder="Nhập địa chỉ chi tiết"></textarea>
+            </div>
+
+            <!-- Notes -->
+            <div>
+              <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-sticky-note mr-2"></i>Ghi chú (tùy chọn)
+              </label>
+              <textarea id="notes" name="notes" rows="3"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2f604a] focus:border-transparent resize-none"
+                placeholder="Ghi chú thêm cho đơn hàng"></textarea>
+            </div>
+          </div>
+
+          <!-- Order Summary in Modal -->
+          <div class="border-t border-gray-200 pt-6">
+            <h3 class="text-lg font-semibold text-[#2f604a] mb-4">Tóm tắt đơn hàng</h3>
+            <div class="space-y-3">
+              <div class="flex justify-between">
+                <span class="text-gray-600">Số lượng sản phẩm:</span>
+                <span class="font-semibold" id="modalItemCount">0 sản phẩm</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Tạm tính:</span>
+                <span class="font-semibold" id="modalSubtotal">0₫</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Phí vận chuyển:</span>
+                <span class="font-semibold text-green-600">Miễn phí</span>
+              </div>
+              <hr class="border-gray-200">
+              <div class="flex justify-between text-lg">
+                <span class="font-bold text-[#2f604a]">Tổng cộng:</span>
+                <span class="font-bold text-[#cb5439]" id="modalTotal">0₫</span>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex items-center justify-end space-x-4 p-6 border-t border-gray-200 bg-gray-50">
+        <button onclick="hideCheckoutModal()"
+          class="px-6 py-3 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+          Hủy
+        </button>
+        <button onclick="processCheckout()"
+          class="px-6 py-3 bg-[#2f604a] text-white rounded-lg hover:bg-[#1e3d2e] transition-colors font-semibold">
+          <i class="fas fa-credit-card mr-2"></i>
+          Xác nhận thanh toán
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/cart.js"></script>
+
+<script>
+  // Cart functionality
+  let cart = [];
+  let isLoadingCart = false; // Flag để tránh gọi liên tục
+  let loadCartTimeout = null; // Debounce timeout
+
+  // Load cart from API
+  async function loadCartFromStorage(forceReload = false) {
+    if (isLoadingCart) {
+      console.log('Cart is already loading, skipping...');
+      return;
+    }
+
+    // Nếu đã có data và không force reload, skip
+    if (!forceReload && cart.length > 0) {
+      console.log('Cart already has data, skipping reload...');
+      return;
+    }
+
+    // Clear existing timeout
+    if (loadCartTimeout) {
+      clearTimeout(loadCartTimeout);
+    }
+
+    // Debounce: chỉ gọi sau 100ms
+    loadCartTimeout = setTimeout(async () => {
+      isLoadingCart = true;
+      try {
+        // Sử dụng CartAPI nếu có
+        if (window.CartAPI) {
+          const cartAPI = new window.CartAPI();
+          const cartData = await cartAPI.getCart();
+
+          if (cartData.success && cartData.data) {
+            // Chuyển đổi từ API response sang format cũ
+            cart = cartData.data.items || [];
+            console.log('Loaded cart from API:', cart);
+            renderCartItems();
+            updateCartSummary();
+          } else {
+            cart = [];
+            showEmptyCart();
+          }
+        } else {
+          // Fallback về localStorage
+          const cartData = localStorage.getItem('cart');
+          if (cartData) {
+            cart = JSON.parse(cartData);
+            console.log('Loaded cart from localStorage:', cart);
+            renderCartItems();
+            updateCartSummary();
+          } else {
+            cart = [];
+            showEmptyCart();
+          }
+        }
+      } catch (error) {
+        console.error('Error loading cart:', error);
+        cart = [];
+        showEmptyCart();
+      } finally {
+        isLoadingCart = false;
+      }
+    }, 100);
+  }
+
+  // Render cart items
+  function renderCartItems() {
+    const cartItemsContainer = document.getElementById('cartItems');
+    const itemCountElement = document.getElementById('itemCount');
+
+    if (cart.length === 0) {
+      showEmptyCart();
+      return;
+    }
+
+    // Update item count
+    const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+    itemCountElement.textContent = `${totalItems} sản phẩm`;
+
+    // Render items
+    cartItemsContainer.innerHTML = cart.map((item, index) => `
+        <div class="cart-item p-6" data-product-id="${item.productId}">
+            <div class="flex items-center space-x-4">
+                <!-- Product Image -->
+                <div class="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-box text-gray-400 text-2xl"></i>
+                </div>
+
+                <!-- Product Info -->
+                <div class="flex-1 min-w-0">
+                    <h3 class="text-lg font-semibold text-[#1f2d3d] mb-1">${item.productName}</h3>
+                    <p class="text-sm text-gray-600 mb-2">Mã sản phẩm: ${item.productId}</p>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-[#cb5439] font-bold text-lg">${formatPrice(item.price)}₫</span>
+                    </div>
+                </div>
+
+                <!-- Quantity Controls -->
+                <div class="flex items-center space-x-2">
+                    <button class="quantity-btn w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-600"
+                            onclick="updateQuantity(${index}, -1)">
+                        <i class="fas fa-minus text-xs"></i>
+                    </button>
+                    <input type="number" value="${item.quantity}" min="1" 
+                           class="w-12 h-8 text-center border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#2f604a]"
+                           onchange="updateQuantityInput(${index}, this.value)" />
+                    <button class="quantity-btn w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-600"
+                            onclick="updateQuantity(${index}, 1)">
+                        <i class="fas fa-plus text-xs"></i>
+                    </button>
+                </div>
+
+                <!-- Total Price -->
+                <div class="text-right">
+                    <div class="text-lg font-bold text-[#2f604a]">${formatPrice(item.price * item.quantity)}₫</div>
+                    <div class="text-sm text-gray-500">${formatPrice(item.price)}₫ × ${item.quantity}</div>
+                </div>
+
+                <!-- Remove Button -->
+                <button class="remove-btn w-8 h-8 rounded-full border border-red-300 text-red-600 flex items-center justify-center"
+                        onclick="removeItem(${index})" id="removeBtn${index}">
+                    <i class="fas fa-trash text-xs" id="removeIcon${index}"></i>
+                </button>
+            </div>
+        </div>
+    `).join('');
+  }
+
+  // Show empty cart
+  function showEmptyCart() {
+    const cartItemsContainer = document.getElementById('cartItems');
+    const itemCountElement = document.getElementById('itemCount');
+
+    itemCountElement.textContent = '0 sản phẩm';
+    cartItemsContainer.innerHTML = `
+        <div class="p-8 text-center">
+            <div class="text-gray-400 mb-4">
+                <i class="fas fa-shopping-cart text-6xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">Giỏ hàng trống</h3>
+            <p class="text-gray-500 mb-4">Bạn chưa có sản phẩm nào trong giỏ hàng</p>
+            <button onclick="continueShopping()" 
+                    class="bg-[#2f604a] text-white px-6 py-2 rounded-lg hover:bg-[#1e3d2e] transition-colors">
+                <i class="fas fa-shopping-bag mr-2"></i>
+                Bắt đầu mua sắm
+            </button>
+        </div>
+    `;
+
+    // Update summary for empty cart
+    document.getElementById('subtotal').textContent = '0₫';
+    document.getElementById('total').textContent = '0₫';
+  }
+
+  // Update quantity
+  async function updateQuantity(index, delta) {
+    if (index >= 0 && index < cart.length) {
+      const item = cart[index];
+      const newQuantity = item.quantity + delta;
+
+      if (newQuantity < 1) {
+        return; // Không cho phép quantity < 1
+      }
+
+      try {
+        // Sử dụng CartAPI nếu có
+        if (window.CartAPI) {
+          const cartAPI = new window.CartAPI();
+          const result = await cartAPI.updateCartItem(item.productId, newQuantity);
+
+          if (result.success) {
+            cart[index].quantity = newQuantity;
+            showNotification('Đã cập nhật số lượng!', 'success');
+          } else {
+            showNotification('Lỗi khi cập nhật số lượng: ' + result.message, 'error');
+            return;
+          }
+        } else {
+          // Fallback về localStorage
+          cart[index].quantity = newQuantity;
+          localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+        // Re-render
+        renderCartItems();
+        updateCartSummary();
+
+      } catch (error) {
+        console.error('Error updating quantity:', error);
+        showNotification('Lỗi khi cập nhật số lượng: ' + error.message, 'error');
+      }
+    }
+  }
+
+  // Update quantity from input
+  async function updateQuantityInput(index, value) {
+    if (index >= 0 && index < cart.length) {
+      const item = cart[index];
+      const newQuantity = Math.max(1, parseInt(value) || 1);
+
+      try {
+        // Sử dụng CartAPI nếu có
+        if (window.CartAPI) {
+          const cartAPI = new window.CartAPI();
+          const result = await cartAPI.updateCartItem(item.productId, newQuantity);
+
+          if (result.success) {
+            cart[index].quantity = newQuantity;
+            showNotification('Đã cập nhật số lượng!', 'success');
+          } else {
+            showNotification('Lỗi khi cập nhật số lượng: ' + result.message, 'error');
+            return;
+          }
+        } else {
+          // Fallback về localStorage
+          cart[index].quantity = newQuantity;
+          localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+        // Re-render
+        renderCartItems();
+        updateCartSummary();
+
+      } catch (error) {
+        console.error('Error updating quantity:', error);
+        showNotification('Lỗi khi cập nhật số lượng: ' + error.message, 'error');
+      }
+    }
+  }
+
+  // Remove item
+  async function removeItem(index) {
+    if (index >= 0 && index < cart.length) {
+      const item = cart[index];
+      const removeBtn = document.getElementById(`removeBtn${index}`);
+      const removeIcon = document.getElementById(`removeIcon${index}`);
+
+      // Disable all remove buttons
+      disableAllRemoveButtons();
+
+      // Show loading state for current button
+      if (removeBtn && removeIcon) {
+        removeBtn.disabled = true;
+        removeBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        removeIcon.className = 'fas fa-spinner fa-spin text-xs';
+      }
+
+      try {
+        // Sử dụng CartAPI nếu có
+        if (window.CartAPI) {
+          const cartAPI = new window.CartAPI();
+          const result = await cartAPI.removeFromCart(item.productId);
+
+          if (result.success) {
+            cart.splice(index, 1);
+            showNotification('Đã xóa sản phẩm khỏi giỏ hàng!', 'success');
+          } else {
+            showNotification('Lỗi khi xóa sản phẩm: ' + result.message, 'error');
+            // Reset button state on error
+            enableAllRemoveButtons();
+            if (removeBtn && removeIcon) {
+              removeBtn.disabled = false;
+              removeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+              removeIcon.className = 'fas fa-trash text-xs';
+            }
+            return;
+          }
+        } else {
+          // Fallback về localStorage
+          cart.splice(index, 1);
+          localStorage.setItem('cart', JSON.stringify(cart));
+          showNotification('Đã xóa sản phẩm khỏi giỏ hàng!', 'success');
+        }
+
+        // Re-render
+        renderCartItems();
+        updateCartSummary();
+
+      } catch (error) {
+        console.error('Error removing item:', error);
+        showNotification('Lỗi khi xóa sản phẩm: ' + error.message, 'error');
+
+        // Reset button state on error
+        enableAllRemoveButtons();
+        if (removeBtn && removeIcon) {
+          removeBtn.disabled = false;
+          removeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+          removeIcon.className = 'fas fa-trash text-xs';
+        }
+      }
+    }
+  }
+
+  // Disable all remove buttons
+  function disableAllRemoveButtons() {
+    for (let i = 0; i < cart.length; i++) {
+      const removeBtn = document.getElementById(`removeBtn${i}`);
+      if (removeBtn) {
+        removeBtn.disabled = true;
+        removeBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      }
+    }
+  }
+
+  // Enable all remove buttons
+  function enableAllRemoveButtons() {
+    for (let i = 0; i < cart.length; i++) {
+      const removeBtn = document.getElementById(`removeBtn${i}`);
+      if (removeBtn) {
+        removeBtn.disabled = false;
+        removeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      }
+    }
+  }
+
+  // Update cart summary
+  function updateCartSummary() {
+    const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+    const shipping = 0; // Free shipping
+    const total = subtotal + shipping;
+
+    document.getElementById('subtotal').textContent = formatPrice(subtotal) + '₫';
+    document.getElementById('total').textContent = formatPrice(total) + '₫';
+  }
+
+  // Format price
+  function formatPrice(price) {
+    return new Intl.NumberFormat('vi-VN').format(price);
+  }
+
+  // Show notification
+  function showNotification(message, type = 'success') {
+    const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+    const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300`;
+    toast.innerHTML = `<i class="fas ${icon} mr-2"></i>${message}`;
+
+    document.body.appendChild(toast);
+
+    // Show animation
+    setTimeout(() => {
+      toast.classList.remove('translate-x-full');
+    }, 100);
+
+    // Auto hide after 3 seconds
+    setTimeout(() => {
+      toast.classList.add('translate-x-full');
+      setTimeout(() => {
+        toast.remove();
+      }, 300);
+    }, 3000);
+  }
+
+  // Continue shopping
+  function continueShopping() {
+    window.location.href = '/products';
+  }
+
+
+  // Apply discount
+  function applyDiscount() {
+    showNotification('Mã giảm giá không hợp lệ!', 'error');
+  }
+
+  // Show checkout modal
+  function showCheckoutModal() {
+    if (cart.length === 0) {
+      showNotification('Giỏ hàng trống!', 'error');
+      return;
+    }
+
+    // Update modal with current cart data
+    updateModalSummary();
+
+    // Show modal
+    const modal = document.getElementById('checkoutModal');
+    modal.classList.remove('hidden');
+
+    // Add blur effect to main content
+    document.body.classList.add('modal-open');
+
+    // Add click outside listener
+    setTimeout(() => {
+      modal.addEventListener('click', function (event) {
+        if (event.target === modal) {
+          console.log('Modal container clicked - closing modal');
+          hideCheckoutModal();
+        }
+      });
+    }, 100);
+
+    // Focus on first input
+    setTimeout(() => {
+      document.getElementById('username').focus();
+    }, 100);
+  }
+
+  // Hide checkout modal
+  function hideCheckoutModal() {
+    const modal = document.getElementById('checkoutModal');
+
+    // Remove click listener
+    modal.removeEventListener('click', arguments.callee);
+
+    // Add closing animation
+    modal.classList.add('closing');
+
+    // Wait for animation to complete before hiding
+    setTimeout(() => {
+      modal.classList.add('hidden');
+      modal.classList.remove('closing');
+
+      // Remove blur effect
+      document.body.classList.remove('modal-open');
+
+      // Reset form
+      document.getElementById('checkoutForm').reset();
+    }, 300); // Match animation duration
+  }
+
+  // Update modal summary
+  function updateModalSummary() {
+    const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+    const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+    const total = subtotal; // Free shipping
+
+    document.getElementById('modalItemCount').textContent = `${totalItems} sản phẩm`;
+    document.getElementById('modalSubtotal').textContent = formatPrice(subtotal) + '₫';
+    document.getElementById('modalTotal').textContent = formatPrice(total) + '₫';
+  }
+
+  // Process checkout
+  async function processCheckout() {
+    const form = document.getElementById('checkoutForm');
+    const formData = new FormData(form);
+
+    // Validate required fields
+    const username = formData.get('username').trim();
+    const phone = formData.get('phone').trim();
+    const address = formData.get('address').trim();
+    const notes = formData.get('notes').trim();
+
+    if (!username || !phone || !address) {
+      showNotification('Vui lòng điền đầy đủ thông tin bắt buộc!', 'error');
+      return;
+    }
+
+    // Validate phone number (basic validation)
+    const phoneRegex = /^[0-9]{10,11}$/;
+    if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
+      showNotification('Số điện thoại không hợp lệ!', 'error');
+      return;
+    }
+
+    // Calculate total amount
+    const totalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+
+    // Create order info string
+    const orderInfo = `Đơn hàng của ${username} - ${phone} - ${address}${notes ? ' - Ghi chú: ' + notes : ''}`;
+
+    try {
+      // Sử dụng OrderAPI nếu có
+      if (window.OrderAPI) {
+        const orderAPI = new window.OrderAPI();
+        const result = await orderAPI.createOrder(username, phone, address, notes, 'VNPAY');
+
+        if (result.success) {
+          console.log('Order created via API:', result.data);
+          // Call VNPay API to create payment với orderId
+          createVnPayPayment(totalAmount, orderInfo, result.data.id);
+        } else {
+          showNotification('Lỗi khi tạo đơn hàng: ' + result.message, 'error');
+          return;
+        }
+      } else {
+        // Fallback về localStorage
+        const order = {
+          id: Date.now().toString(),
+          customer: {
+            name: username,
+            phone: phone,
+            address: address,
+            notes: notes
+          },
+          items: cart.map(item => ({
+            id: item.productId,
+            name: item.productName,
+            price: item.price,
+            quantity: item.quantity
+          })),
+          total: totalAmount,
+          status: 'pending',
+          createdAt: new Date().toISOString()
+        };
+
+        console.log('Order created:', order);
+
+        // Save order to localStorage
+        const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        orders.push(order);
+        localStorage.setItem('orders', JSON.stringify(orders));
+
+        // Call VNPay API to create payment với orderId
+        createVnPayPayment(totalAmount, orderInfo, order.id);
+      }
+
+    } catch (error) {
+      console.error('Error creating order:', error);
+      showNotification('Lỗi khi tạo đơn hàng: ' + error.message, 'error');
+    }
+  }
+
+  // Create VNPay payment
+  async function createVnPayPayment(amount, orderInfo, orderId = null) {
+    try {
+      // Show loading state
+      const checkoutBtn = document.querySelector('button[onclick="processCheckout()"]');
+      const originalText = checkoutBtn.innerHTML;
+      checkoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Đang tạo thanh toán...';
+      checkoutBtn.disabled = true;
+
+      console.log('Creating VNPay payment...', { amount, orderInfo, orderId });
+
+      // Tạo orderInfo với orderId nếu có
+      let finalOrderInfo = orderInfo;
+      if (orderId) {
+        finalOrderInfo = `OrderID: ${orderId} - ${orderInfo}`;
+      }
+
+      // Call VNPay API
+      const response = await fetch('/api/vnpay/create-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          amount: amount,
+          orderInfo: finalOrderInfo,
+          orderId: orderId || ''
+        })
+      });
+
+      const result = await response.json();
+      console.log('VNPay API response:', result);
+
+      if (result.success) {
+        // Hide modal
+        hideCheckoutModal();
+
+        // Show success message
+        showNotification('Chuyển hướng đến trang thanh toán VNPay...', 'success');
+
+        // Redirect to VNPay payment page
+        setTimeout(() => {
+          window.location.href = result.paymentUrl;
+        }, 1000);
+
+      } else {
+        throw new Error(result.message || 'Lỗi khi tạo thanh toán');
+      }
+
+    } catch (error) {
+      console.error('Error creating VNPay payment:', error);
+      showNotification('Lỗi khi tạo thanh toán: ' + error.message, 'error');
+
+      // Reset button state
+      const checkoutBtn = document.querySelector('button[onclick="processCheckout()"]');
+      checkoutBtn.innerHTML = '<i class="fas fa-credit-card mr-2"></i>Xác nhận thanh toán';
+      checkoutBtn.disabled = false;
+    }
+  }
+
+  // Handle payment result from VNPay
+  function handlePaymentResult() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const vnpResponseCode = urlParams.get('vnp_ResponseCode');
+    const vnpTransactionStatus = urlParams.get('vnp_TransactionStatus');
+    const vnpAmount = urlParams.get('vnp_Amount');
+    const vnpOrderInfo = urlParams.get('vnp_OrderInfo');
+
+    if (vnpResponseCode && vnpTransactionStatus) {
+      console.log('Payment result:', {
+        responseCode: vnpResponseCode,
+        transactionStatus: vnpTransactionStatus,
+        amount: vnpAmount,
+        orderInfo: vnpOrderInfo
+      });
+
+      if (vnpResponseCode === '00' && vnpTransactionStatus === '00') {
+        // Payment successful
+        showNotification('Thanh toán thành công! Đơn hàng đã được xác nhận.', 'success');
+
+        // Clear cart only after successful payment
+        cart = [];
+        localStorage.setItem('cart', JSON.stringify(cart));
+
+        // Update cart display
+        renderCartItems();
+        updateCartSummary();
+
+        // Update order status in localStorage
+        const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        const lastOrder = orders[orders.length - 1];
+        if (lastOrder) {
+          lastOrder.status = 'paid';
+          lastOrder.paymentInfo = {
+            responseCode: vnpResponseCode,
+            transactionStatus: vnpTransactionStatus,
+            amount: vnpAmount,
+            orderInfo: vnpOrderInfo,
+            paidAt: new Date().toISOString()
+          };
+          localStorage.setItem('orders', JSON.stringify(orders));
+        }
+
+        // Clean URL parameters
+        setTimeout(() => {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }, 3000);
+
+      } else {
+        // Payment failed
+        showNotification('Thanh toán thất bại! Vui lòng thử lại.', 'error');
+
+        // Clean URL parameters
+        setTimeout(() => {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }, 3000);
+      }
+    }
+  }
+
+  // Initialize cart when page loads
+  document.addEventListener('DOMContentLoaded', function () {
+    console.log('DOM loaded, initializing cart...');
+    loadCartFromStorage();
+    handlePaymentResult();
+  });
+
+  // Close modal with ESC key
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') {
+      const modal = document.getElementById('checkoutModal');
+      if (!modal.classList.contains('hidden')) {
+        hideCheckoutModal();
+      }
+    }
+  });
+</script>

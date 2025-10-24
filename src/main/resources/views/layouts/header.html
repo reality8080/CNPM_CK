@@ -1,0 +1,541 @@
+<header th:fragment="header">
+    <!-- Main Header -->
+    <div class="bg-white shadow-lg">
+        <div class="container mx-auto px-4 py-4 md:py-6">
+            <!-- Desktop Layout -->
+            <div class="hidden md:flex justify-center items-center">
+                <!-- Logo -->
+                <div class="flex items-center mr-12">
+                    <div class="text-center">
+                        <div class="flex items-center justify-center mb-1">
+                            <div
+                                    class="w-10 h-10 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full flex items-center justify-center mr-3 shadow-md">
+                                <i class="fas fa-tshirt text-white text-lg"></i>
+                            </div>
+                            <span class="text-[#2f604a] text-3xl font-bold">THE MONA</span>
+                        </div>
+                        <div class="text-[#4a7c59] text-sm font-medium">FRESH & BEAUTY</div>
+                    </div>
+                </div>
+
+                <!-- Search Section -->
+                <div class="flex-1 max-w-2xl">
+                    <div class="flex">
+                        <input type="text" placeholder="Tìm kiếm sản phẩm quần áo..."
+                               class="flex-1 px-6 py-4 border-2 border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-gray-50 text-lg" />
+                        <button
+                                class="bg-gradient-to-r from-[#2f604a] to-[#1e3d2e] text-white px-8 py-4 rounded-full hover:from-[#1e3d2e] hover:to-[#0f1f16] transition-all duration-300 ml-3 font-bold shadow-lg hover:shadow-xl">
+                            <i class="fas fa-search mr-2"></i>Tìm kiếm
+                        </button>
+                    </div>
+                </div>
+
+                <!-- User Icons -->
+                <div class="flex items-center space-x-6 ml-12">
+                    <button id="userIcon"
+                            class="text-gray-600 hover:text-green-600 transition-colors p-2 rounded-full hover:bg-gray-100">
+                        <i class="fas fa-user text-2xl"></i>
+                    </button>
+                    <a href="/cart"
+                       class="text-gray-600 hover:text-green-600 transition-colors relative p-2 rounded-full hover:bg-gray-100">
+                        <i class="fas fa-shopping-cart text-2xl"></i>
+                        <span
+                                class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">0</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Mobile Layout -->
+            <div class="md:hidden flex justify-between items-center">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <div
+                            class="w-8 h-8 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full flex items-center justify-center mr-2 shadow-md">
+                        <i class="fas fa-tshirt text-white text-sm"></i>
+                    </div>
+                    <div>
+                        <div class="text-[#2f604a] text-xl font-bold">THE MONA</div>
+                        <div class="text-[#4a7c59] text-xs font-medium">FRESH & BEAUTY</div>
+                    </div>
+                </div>
+
+                <!-- Mobile Icons -->
+                <div class="flex items-center space-x-4">
+                    <button id="userIcon"
+                            class="text-gray-600 hover:text-green-600 transition-colors p-2 rounded-full hover:bg-gray-100">
+                        <i class="fas fa-user text-xl"></i>
+                    </button>
+                    <a href="/cart"
+                       class="text-gray-600 hover:text-green-600 transition-colors relative p-2 rounded-full hover:bg-gray-100">
+                        <i class="fas fa-shopping-cart text-xl"></i>
+                        <span
+                                class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">0</span>
+                    </a>
+                    <button id="mobile-menu-toggle"
+                            class="text-gray-600 hover:text-green-600 transition-colors p-2 rounded-full hover:bg-gray-100">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Search -->
+            <div class="md:hidden mt-4">
+                <div class="flex">
+                    <input type="text" placeholder="Tìm kiếm sản phẩm quần áo..."
+                           class="flex-1 px-4 py-3 border-2 border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-gray-50" />
+                    <button
+                            class="bg-gradient-to-r from-[#2f604a] to-[#1e3d2e] text-white px-6 py-3 rounded-full hover:from-[#1e3d2e] hover:to-[#0f1f16] transition-all duration-300 ml-2 font-bold shadow-lg">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="bg-gradient-to-r from-gray-50 to-gray-100 border-t-2 border-green-200">
+        <div class="w-full px-4">
+            <div class="flex justify-between items-center py-4">
+                <!-- Navigation Links -->
+                <div class="hidden md:flex items-center justify-between w-full text-black">
+                    <a href="/"
+                       class="flex-1 text-center text-black hover:text-[#cb5439] transition-all duration-300 font-semibold text-lg px-4 py-3 rounded-lg hover:bg-white hover:shadow-md">
+                        <i class="fas fa-home mr-2"></i>Trang chủ
+                    </a>
+                    <a href="/products"
+                       class="flex-1 text-center text-black hover:text-[#cb5439] transition-all duration-300 font-semibold text-lg px-4 py-3 rounded-lg hover:bg-white hover:shadow-md">
+                        <i class="fas fa-tshirt mr-2"></i>Sản phẩm
+                    </a>
+                    <a href="/about"
+                       class="flex-1 text-center text-black hover:text-[#cb5439] transition-all duration-300 font-semibold text-lg px-4 py-3 rounded-lg hover:bg-white hover:shadow-md">
+                        <i class="fas fa-info-circle mr-2"></i>Giới thiệu
+                    </a>
+                    <a href="/contact"
+                       class="flex-1 text-center text-black hover:text-[#cb5439] transition-all duration-300 font-semibold text-lg px-4 py-3 rounded-lg hover:bg-white hover:shadow-md">
+                        <i class="fas fa-phone mr-2"></i>Liên hệ
+                    </a>
+                </div>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="md:hidden hidden pb-4">
+                <div class="flex flex-col space-y-2 bg-white rounded-lg shadow-lg p-4">
+                    <a href="/"
+                       class="block py-3 px-4 hover:bg-green-50 rounded-lg transition-all duration-300 font-semibold text-lg border-l-4 border-transparent hover:border-green-500">
+                        <i class="fas fa-home mr-3"></i>Trang chủ
+                    </a>
+                    <a href="/products"
+                       class="block py-3 px-4 hover:bg-green-50 rounded-lg transition-all duration-300 font-semibold text-lg border-l-4 border-transparent hover:border-green-500">
+                        <i class="fas fa-tshirt mr-3"></i>Sản phẩm
+                    </a>
+                    <a href="/about"
+                       class="block py-3 px-4 hover:bg-green-50 rounded-lg transition-all duration-300 font-semibold text-lg border-l-4 border-transparent hover:border-green-500">
+                        <i class="fas fa-info-circle mr-3"></i>Giới thiệu
+                    </a>
+                    <a href="/contact"
+                       class="block py-3 px-4 hover:bg-green-50 rounded-lg transition-all duration-300 font-semibold text-lg border-l-4 border-transparent hover:border-green-500">
+                        <i class="fas fa-phone mr-3"></i>Liên hệ
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Modal HTML -->
+    <!-- User Modal -->
+    <div id="userModal"
+         class="fixed inset-0 bg-black bg-opacity-50 hidden modal-hidden z-50 flex items-center justify-center">
+        <div id="modalContent"
+             class="bg-white rounded-lg p-6 w-full max-w-md mx-4 scale-95 opacity-0 modal-content-hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800">Đăng nhập</h2>
+                <button id="closeUserModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email hoặc số điện thoại</label>
+                    <input id="emailOrPhone" name="emailOrPhone" type="text"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                           placeholder="Nhập email hoặc số điện thoại" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Mật khẩu</label>
+                    <input id="password" name="password" type="password"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                           placeholder="Nhập mật khẩu" />
+                </div>
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="rememberMe" class="rounded border-gray-300 text-green-600 focus:ring-green-500" />
+                        <span class="ml-2 text-sm text-gray-600">Ghi nhớ đăng nhập</span>
+                    </label>
+                    <button id="forgotPasswordBtn" class="text-sm text-green-600 hover:text-green-800">Quên mật khẩu?</button>
+                </div>
+                <button type="submit"
+                        class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors">Đăng nhập</button>
+            </form>
+
+            <div class="mt-4 text-center">
+                <p class="text-sm text-gray-600">
+                    Chưa có tài khoản?
+                    <button id="signupBtn" class="text-green-600 hover:text-green-800 font-medium">Đăng ký ngay</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signupModal"
+         class="fixed inset-0 bg-black bg-opacity-50 hidden modal-hidden z-50 flex items-center justify-center">
+        <div id="signupModalContent"
+             class="bg-white rounded-lg p-6 w-full max-w-md mx-4 scale-95 opacity-0 modal-content-hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800">Đăng ký</h2>
+                <button id="closeSignupModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form id="signupForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Họ và tên</label>
+                    <input type="text"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                           placeholder="Nhập họ và tên" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                           placeholder="Nhập email của bạn" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Mật khẩu</label>
+                    <input type="password"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                           placeholder="Nhập mật khẩu" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Xác nhận mật khẩu</label>
+                    <input type="password"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                           placeholder="Nhập lại mật khẩu" />
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500" />
+                    <span class="ml-2 text-sm text-gray-600">Tôi đồng ý với <a href="#"
+                                                                               class="text-green-600 hover:text-green-800">điều khoản sử dụng</a></span>
+                </div>
+                <button type="submit"
+                        class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors">Đăng
+                    ký</button>
+            </form>
+
+            <div class="mt-4 text-center">
+                <p class="text-sm text-gray-600">
+                    Đã có tài khoản?
+                    <button id="switchToLogin" class="text-green-600 hover:text-green-800 font-medium">Đăng nhập
+                        ngay</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgotPasswordModal"
+         class="fixed inset-0 bg-black bg-opacity-50 hidden modal-hidden z-50 flex items-center justify-center">
+        <div id="forgotPasswordModalContent"
+             class="bg-white rounded-lg p-6 w-full max-w-md mx-4 scale-95 opacity-0 modal-content-hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800">Quên mật khẩu</h2>
+                <button id="closeForgotPasswordModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form id="forgotPasswordForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email hoặc số điện thoại</label>
+                    <input type="text" id="forgotEmailOrPhone"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                           placeholder="Nhập email hoặc số điện thoại" />
+                </div>
+                <button type="submit"
+                        class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors">Gửi
+                    mã OTP</button>
+            </form>
+
+            <div class="mt-4 text-center">
+                <p class="text-sm text-gray-600">
+                    Nhớ mật khẩu?
+                    <button id="backToLogin" class="text-green-600 hover:text-green-800 font-medium">Đăng nhập
+                        ngay</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- OTP Modal -->
+    <div id="otpModal"
+         class="fixed inset-0 bg-black bg-opacity-50 hidden modal-hidden z-50 flex items-center justify-center">
+        <div id="otpModalContent"
+             class="bg-white rounded-lg p-6 w-full max-w-md mx-4 scale-95 opacity-0 modal-content-hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800">Xác thực OTP</h2>
+                <button id="closeOtpModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="text-center mb-4">
+                <p class="text-sm text-gray-600">Mã OTP đã được gửi đến</p>
+                <p class="text-sm font-medium text-gray-800" id="otpEmailOrPhone"></p>
+            </div>
+
+            <form id="otpForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Mã OTP</label>
+                    <input type="text" id="otpCode"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-center text-lg tracking-widest"
+                           placeholder="Nhập mã OTP" maxlength="6" />
+                </div>
+                <div class="flex items-center justify-between">
+                    <button type="button" id="resendOtp" class="text-sm text-green-600 hover:text-green-800">Gửi lại
+                        mã</button>
+                    <span class="text-sm text-gray-500" id="otpTimer">02:00</span>
+                </div>
+                <button type="submit"
+                        class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors">Xác
+                    thực</button>
+            </form>
+
+            <div class="mt-4 text-center">
+                <p class="text-sm text-gray-600">
+                    Không nhận được mã?
+                    <button id="changeEmailOrPhone" class="text-green-600 hover:text-green-800 font-medium">Thay
+                        đổi</button>
+                </p>
+            </div>
+        </div>
+    </div>
+    <!-- Profile Modal (mới) -->
+    <!-- Thêm vào cuối phần modal trong header.html -->
+    <!-- Profile Modal -->
+    <div id="profileModal"
+         class="fixed inset-0 bg-black bg-opacity-50 hidden modal-hidden z-50 flex items-center justify-center">
+        <div id="profileModalContent"
+             class="bg-white rounded-lg p-6 w-full max-w-md mx-4 scale-95 opacity-0 modal-content-hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800">Thông tin cá nhân</h2>
+                <button id="closeProfileModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Họ và tên</label>
+                    <p id="profileName" class="text-lg text-gray-900">Loading...</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Email</label>
+                    <p id="profileEmail" class="text-lg text-gray-900">Loading...</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Vai trò</label>
+                    <p id="profileRole" class="text-lg text-gray-900">Loading...</p>
+                </div>
+                <button id="logoutBtn"
+                        class="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors">Đăng xuất</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cập nhật form login để đảm bảo input có thuộc tính name -->
+
+    <!-- Modal CSS -->
+    <style>
+        .modal-hidden {
+            display: none !important;
+        }
+
+        .modal-visible {
+            display: flex !important;
+        }
+
+        .modal-content-hidden {
+            transform: scale(0.95);
+            opacity: 0;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal-content-visible {
+            transform: scale(1);
+            opacity: 1;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Category Dropdown CSS */
+        #categoryMenu {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #categoryMenu.opacity-0 {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+        }
+
+        #categoryMenu.opacity-100 {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        #categoryArrow {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #categoryArrow.rotate-180 {
+            transform: rotate(180deg);
+        }
+
+        /* Dropdown header styling */
+        #categoryMenu .bg-\[#cb5439\] {
+            background-color: #cb5439;
+        }
+
+        /* Menu items styling */
+        #categoryMenu a {
+            position: relative;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            transform: translateY(-20px);
+            margin-bottom: 0;
+        }
+
+        #categoryMenu a:hover {
+            background-color: #f3f4f6;
+            color: #cb5439;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* No background for dropdown container */
+        #categoryMenu {
+            background: transparent;
+        }
+
+        /* When dropdown is open, no background */
+        #categoryMenu.opacity-100 {
+            background: transparent;
+        }
+
+        /* Dotted border styling */
+        #categoryMenu .border-dotted {
+            border-style: dotted;
+        }
+
+        /* Chevron right icons */
+        #categoryMenu .fa-chevron-right {
+            transition: transform 0.2s ease;
+        }
+
+        #categoryMenu a:hover .fa-chevron-right {
+            transform: translateX(2px);
+        }
+
+        /* Active navigation link styling */
+        .nav-link-active {
+            color: #cb5439 !important;
+        }
+
+        .nav-link-active:hover {
+            color: #a03d2a !important;
+        }
+
+        /* Mobile menu active styling */
+        #mobile-menu .nav-link-active {
+            background-color: #cb5439 !important;
+            color: white !important;
+        }
+
+        #mobile-menu .nav-link-active:hover {
+            background-color: #a03d2a !important;
+            color: white !important;
+        }
+
+        /* Cart and Wishlist Count Styling */
+        .fa-shopping-cart+span,
+        .fa-heart+span {
+            display: none;
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #ef4444;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .fa-shopping-cart+span:hover,
+        .fa-heart+span:hover {
+            transform: scale(1.1);
+            background-color: #dc2626;
+        }
+
+        /* Animation for count updates */
+        @keyframes countUpdate {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .fa-shopping-cart+span.updated,
+        .fa-heart+span.updated {
+            animation: countUpdate 0.3s ease;
+        }
+    </style>
+
+    <!-- Mobile Menu Toggle Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            if (mobileMenuToggle && mobileMenu) {
+                mobileMenuToggle.addEventListener('click', function () {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+        });
+    </script>
+
+    <!-- Modal JavaScript -->
+    <script defer src="/js/main-modal.js"></script>
+    <script defer src="/js/header-menu.js"></script>
+    <script defer src="/js/client/cart/cart-api.js"></script>
+    <script defer src="/js/client/order/order-api.js"></script>
+    <script defer src="/js/client/cart/cart-count.js"></script>
+    <script defer src="/js/client/cart/wishlist-count.js"></script>
+    <script defer src="/js/client/cart/cart-wishlist-manager.js"></script>
+    <!-- Demo script (chỉ trong development) -->
+    <script defer src="/js/client/cart/cart-demo.js"></script>
+</header>

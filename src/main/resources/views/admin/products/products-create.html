@@ -1,0 +1,233 @@
+<div th:replace="~{layouts/authLayout :: layout('Thêm sản phẩm', ~{::content})}">
+  <div th:fragment="content">
+    <div class="bg-white rounded-lg shadow-sm p-6">
+      <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">Thêm sản phẩm mới</h1>
+        <p class="text-gray-600 mt-2">Điền thông tin để tạo sản phẩm mới</p>
+      </div>
+
+      <form class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Tên sản phẩm</label>
+            <input
+              type="text"
+              class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors no-scale"
+              placeholder="Nhập tên sản phẩm"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Giá</label>
+            <input
+              type="number"
+              class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors no-scale"
+              placeholder="Nhập giá sản phẩm"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Danh mục</label>
+            <select id="categorySelect" class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors no-scale">
+              <option value="">Đang tải danh mục...</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Số lượng</label>
+            <input
+              type="number"
+              class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors no-scale"
+              placeholder="Nhập số lượng"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Mô tả</label>
+          <textarea
+            rows="4"
+            class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors no-scale"
+            placeholder="Nhập mô tả sản phẩm"
+          ></textarea>
+        </div>
+
+        <!-- Product Attributes Section -->
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <label class="block text-sm font-medium text-gray-700">Thuộc tính sản phẩm</label>
+            <button type="button" id="addAttributeBtn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm">
+              <i class="fas fa-plus mr-2"></i>Thêm thuộc tính
+            </button>
+          </div>
+          
+          <div id="attributesContainer" class="space-y-3">
+            <!-- Template for new attribute (hidden) -->
+            <div id="attributeTemplate" class="hidden">
+              <div class="attribute-item flex items-center space-x-3 p-4 border border-gray-200 rounded-lg bg-white">
+                <div class="flex-1">
+                  <input
+                    type="text"
+                    placeholder="Tên thuộc tính (VD: Màu sắc, Kích thước, Chất liệu...)"
+                    class="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:border-blue-500 focus:outline-none transition-colors text-sm no-scale"
+                  />
+                </div>
+                <div class="flex-1">
+                  <input
+                    type="text"
+                    placeholder="Giá trị (VD: Đỏ, XL, Cotton...)"
+                    class="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:border-blue-500 focus:outline-none transition-colors text-sm no-scale"
+                  />
+                </div>
+                <button type="button" class="remove-attribute-btn px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+            <!-- Default attribute will be added here -->
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Hình ảnh</label>
+          <div class="relative">
+            <input type="file" id="imageInput" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 hover:bg-blue-50 transition-colors">
+              <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+              <p class="text-gray-600">Kéo thả hình ảnh vào đây hoặc click để chọn</p>
+              <p class="text-sm text-gray-500 mt-2">Có thể chọn nhiều hình ảnh cùng lúc</p>
+            </div>
+          </div>
+          
+          <!-- Image Preview Container -->
+          <div id="imagePreviewContainer" class="mt-6 hidden">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center space-x-2">
+                <i class="fas fa-images text-blue-500"></i>
+                <h4 class="text-sm font-medium text-gray-700">Hình ảnh đã chọn</h4>
+                <span id="imageCount" class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">0</span>
+              </div>
+              <button type="button" id="clearAllImages" class="flex items-center space-x-1 px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors text-sm font-medium">
+                <i class="fas fa-trash text-xs"></i>
+                <span>Xóa tất cả</span>
+              </button>
+            </div>
+            <div id="imagePreviewGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              <!-- Image previews will be added here -->
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end space-x-4">
+          <button type="button" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">Hủy</button>
+          <button type="submit" id="saveProductBtn" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <i class="fas fa-save mr-2"></i>Lưu sản phẩm
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- CSS for animations -->
+<style>
+  /* Custom animations */
+  @keyframes slideIn {
+    from { 
+      opacity: 0; 
+      transform: translateY(-10px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
+  }
+  
+  @keyframes slideOut {
+    from { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
+    to { 
+      opacity: 0; 
+      transform: translateY(-10px); 
+    }
+  }
+  
+  .attribute-item {
+    animation: slideIn 0.3s ease-out;
+  }
+  
+  .attribute-item.removing {
+    animation: slideOut 0.3s ease-in;
+  }
+  
+  /* Override global input focus scale for no-scale class */
+  input.no-scale:focus,
+  select.no-scale:focus,
+  textarea.no-scale:focus {
+    transform: none !important;
+  }
+  
+  /* Disabled form elements styling */
+  input:disabled,
+  select:disabled,
+  textarea:disabled,
+  button:disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+    background-color: #f3f4f6 !important;
+    color: #6b7280 !important;
+  }
+  
+  /* Disabled buttons with additional styling */
+  button:disabled {
+    pointer-events: none !important;
+  }
+  
+  /* Disabled image upload area */
+  #imageInput:disabled + div {
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+    background-color: #f9fafb !important;
+    border-color: #d1d5db !important;
+  }
+  
+  /* Upload progress overlay styles */
+  .upload-progress-overlay {
+    backdrop-filter: blur(2px);
+    transition: all 0.3s ease;
+  }
+  
+  .upload-progress-overlay .bg-white {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    animation: progressPulse 2s ease-in-out infinite;
+  }
+  
+  @keyframes progressPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  
+  .upload-progress-bar {
+    transition: width 0.3s ease, background-color 0.3s ease;
+  }
+  
+  .upload-status {
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+  
+  .upload-percent {
+    font-weight: 600;
+    transition: color 0.3s ease;
+  }
+</style>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" defer></script>
+
+<!-- Product Create JavaScript -->
+<script src="/js/admin/products-create.js" defer></script>

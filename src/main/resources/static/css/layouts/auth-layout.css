@@ -1,0 +1,264 @@
+/* Main layout container */
+#main-content {
+  display: flex;
+  min-height: 100vh;
+  transition: all 0.3s ease;
+}
+
+/* Sidebar container */
+#sidebar-container {
+  position: relative;
+  z-index: 1;
+  background: #1f2937;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+              min-width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.3s ease;
+  flex-shrink: 0;
+  overflow: visible;
+  min-width: 0;
+}
+
+/* Sidebar transitions */
+.sidebar-transition {
+  transition: width 0.3s ease, transform 0.3s ease;
+}
+
+/* Prevent initial flicker */
+#sidebar-container {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+}
+
+/* Ensure sidebar is visible from start */
+#sidebar-container:not(.sidebar-transition) {
+  transition: none !important;
+}
+
+.sidebar-collapsed {
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.sidebar-expanded {
+  width: 360px !important;
+  min-width: 360px !important;
+  max-width: 360px !important;
+  opacity: 1;
+  transform: translateX(0);
+  overflow: visible;
+}
+
+/* Ensure sidebar content is visible */
+#sidebar {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: visible;
+  white-space: nowrap;
+}
+
+/* Sidebar navigation styling */
+#adminSidebarNav {
+  width: 100%;
+  min-width: 300px;
+}
+
+#adminSidebarNav a {
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: unset;
+}
+
+#adminSidebarNav .menu-text {
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: unset;
+}
+
+/* Hidden state */
+#sidebar-container.hidden {
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  opacity: 0;
+  transform: translateX(-20px);
+  overflow: hidden;
+}
+
+/* Collapsed state */
+#sidebar-container.sidebar-collapsed {
+  overflow: hidden;
+}
+
+/* Page content area */
+#page-content {
+  flex: 1;
+  min-width: 0; /* Prevent flex item from overflowing */
+  background: #f9fafb;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+/* Mobile responsive */
+@media (max-width: 1023px) {
+  #sidebar-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.3s ease;
+    opacity: 0;
+  }
+  
+  #sidebar-container.show {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  
+  #page-content {
+    margin-left: 0;
+    width: 100%;
+    transition: transform 0.3s ease;
+  }
+}
+
+/* Desktop responsive */
+@media (min-width: 1024px) {
+  #sidebar-container {
+    position: relative;
+    transform: none;
+  }
+  
+  #page-content {
+    margin-left: 0;
+  }
+}
+
+/* Hide scrollbar for sidebar */
+.sidebar-no-scroll {
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.sidebar-no-scroll::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Backdrop for mobile */
+#sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: none;
+  z-index: 40;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#sidebar-backdrop.show {
+  display: block;
+  opacity: 1;
+}
+
+/* Notification panel slide animation like YouTube */
+#notification-panel {
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#notification-panel.show {
+  transform: translateX(0);
+}
+
+/* Backdrop fade animation */
+#notification-backdrop {
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+  pointer-events: none;
+}
+
+#notification-backdrop.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Notification item styles */
+.notification-item {
+  transition: all 0.2s ease;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.notification-item:hover {
+  background-color: #f8fafc;
+  transform: translateX(-2px);
+}
+
+.notification-item.unread {
+  background-color: #fef3c7;
+  border-left: 3px solid #f59e0b;
+}
+
+.notification-item.unread:hover {
+  background-color: #fde68a;
+}
+
+/* Stagger animation for notification items */
+.notification-item {
+  animation: slideInFromRight 0.4s ease-out forwards;
+  opacity: 0;
+  transform: translateX(10px);
+}
+
+.notification-item:nth-child(1) {
+  animation-delay: 0.05s;
+}
+
+.notification-item:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.notification-item:nth-child(3) {
+  animation-delay: 0.15s;
+}
+
+.notification-item:nth-child(4) {
+  animation-delay: 0.2s;
+}
+
+.notification-item:nth-child(5) {
+  animation-delay: 0.25s;
+}
+
+@keyframes slideInFromRight {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Loading animation */
+.notification-loading {
+  animation: pulse 2s infinite;
+}
+
+/* Smooth scroll for notification list */
+#notification-list {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+#notification-list::-webkit-scrollbar {
+  display: none;
+}

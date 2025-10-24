@@ -1,0 +1,191 @@
+<style>
+  .product-card {
+    transition: all 0.3s ease;
+  }
+
+  .product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  .add-to-cart-btn {
+    transition: all 0.3s ease;
+  }
+
+  .add-to-cart-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 25px rgba(47, 96, 74, 0.3);
+  }
+
+  /* Ant Design Spinner Styles */
+  .ant-spin-container {
+    position: relative;
+    transition: opacity 0.3s;
+  }
+  
+  .ant-spin {
+    position: relative;
+    display: inline-block;
+    color: #1890ff;
+    text-align: center;
+    vertical-align: middle;
+  }
+  
+  .ant-spin-spinning {
+    position: static;
+    display: inline-block;
+  }
+  
+  .ant-spin-dot {
+    position: relative;
+    display: inline-block;
+    font-size: 20px;
+    width: 1em;
+    height: 1em;
+  }
+  
+  .ant-spin-dot-spin {
+    transform: rotate(45deg);
+    animation: antRotate 1.2s infinite linear;
+  }
+  
+  .ant-spin-dot-item {
+    position: absolute;
+    display: block;
+    width: 9px;
+    height: 9px;
+    background-color: #1890ff;
+    border-radius: 100%;
+    transform: scale(0.75);
+    transform-origin: 50% 50%;
+    opacity: 0.3;
+    animation: antSpinMove 1s infinite linear alternate;
+  }
+  
+  .ant-spin-dot-item:nth-child(1) {
+    top: 0;
+    left: 0;
+  }
+  
+  .ant-spin-dot-item:nth-child(2) {
+    top: 0;
+    right: 0;
+    animation-delay: 0.4s;
+  }
+  
+  .ant-spin-dot-item:nth-child(3) {
+    right: 0;
+    bottom: 0;
+    animation-delay: 0.8s;
+  }
+  
+  .ant-spin-dot-item:nth-child(4) {
+    bottom: 0;
+    left: 0;
+    animation-delay: 1.2s;
+  }
+  
+  @keyframes antRotate {
+    to {
+      transform: rotate(405deg);
+    }
+  }
+  
+  @keyframes antSpinMove {
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Line clamp utility */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Smooth transitions */
+  .transition-all {
+    transition: all 0.3s ease;
+  }
+
+  /* Focus states */
+  .focus\:ring-2:focus {
+    box-shadow: 0 0 0 2px rgba(47, 96, 74, 0.2);
+  }
+
+  /* Disabled states */
+  .disabled\:opacity-50:disabled {
+    opacity: 0.5;
+  }
+
+  .disabled\:cursor-not-allowed:disabled {
+    cursor: not-allowed;
+  }
+
+  /* Toast notification */
+  .toast-enter {
+    transform: translateX(100%);
+  }
+
+  .toast-enter-active {
+    transform: translateX(0);
+    transition: transform 0.3s ease;
+  }
+
+  .toast-exit {
+    transform: translateX(0);
+  }
+
+  .toast-exit-active {
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+  }
+</style>
+
+<div th:replace="~{layouts/main-layout :: layout('Sản phẩm - THE MONA', ~{::content})}">
+  <div th:fragment="content">
+    <main class="container mx-auto px-4 py-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Sidebar -->
+      
+
+
+        <!-- Content -->
+        <section class="lg:col-span-12 space-y-4">
+          <!-- Toolbar -->
+          <div
+            class="flex flex-wrap items-center justify-between gap-3 bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3">
+            <div class="text-sm text-gray-700">Danh Mục Sản Phẩm.</div>
+           
+          </div>
+
+          <!-- Product grid -->
+          <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5"></div>
+          <!-- Pagination -->
+          <div class="mt-8 flex items-center justify-center gap-2">
+            <button
+              class="min-w-9 h-9 px-3 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">&laquo;</button>
+            <button class="min-w-9 h-9 px-3 rounded-md border border-gray-300 bg-[#cb5439] text-white">1</button>
+            <button
+              class="min-w-9 h-9 px-3 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">2</button>
+            <button
+              class="min-w-9 h-9 px-3 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">3</button>
+            <button
+              class="min-w-9 h-9 px-3 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">&raquo;</button>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- JavaScript for products page -->
+<!-- Load modules in order -->
+<script src="/js/client/product/productUtils.js"></script>
+<script src="/js/client/product/productApi.js"></script>
+<script src="/js/client/product/productUI.js"></script>
+<script src="/js/client/product/productGallery.js"></script>
+<script src="/js/client/product/productManager.js"></script>
+<script src="/js/client/product/products.js"></script>
